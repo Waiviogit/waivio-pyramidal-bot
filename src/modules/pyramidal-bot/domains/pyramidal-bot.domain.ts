@@ -89,7 +89,7 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
       return;
     }
 
-    this._recalculateQuantities(triggers, pools as unknown as marketPoolType[]);
+  //  this._recalculateQuantities(triggers, pools as unknown as marketPoolType[]);
     const tradeFeeMul = _.get(params, '[0].tradeFeeMul', POOL_FEE);
     const poolsWithToken = _.filter(
       pools,
