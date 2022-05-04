@@ -4,7 +4,7 @@ services:
   main:
     container_name: waivio-pyramidal-bot
     build: .
-    command: npm run start:staging
+    command: npm run start:prod
     restart: always
     network_mode: host
     logging:
