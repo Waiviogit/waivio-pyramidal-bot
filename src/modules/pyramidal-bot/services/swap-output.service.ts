@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { SLIPPAGE } from '../constants/pyramidal-bot.constants';
 import BigNumber from 'bignumber.js';
 import _ from 'lodash';
 import {
@@ -35,7 +34,7 @@ export class SwapOutputService {
       pool: _.find(poolsWithToken, (pool) =>
         pool.tokenPair.includes(poolToBuy.tokenPair),
       ),
-      slippage: SLIPPAGE,
+      slippage: bot.slippage,
       from: true,
       tradeFeeMul,
       precision: poolToBuy.poolPrecision,
@@ -48,7 +47,7 @@ export class SwapOutputService {
       pool: _.find(poolsWithToken, (pool) =>
         pool.tokenPair.includes(poolToSell.tokenPair),
       ),
-      slippage: SLIPPAGE,
+      slippage: bot.slippage,
       from: true,
       tradeFeeMul,
       precision: poolToSell.poolPrecision,
@@ -59,7 +58,7 @@ export class SwapOutputService {
         poolToSell.stableTokenPrecision,
       ),
       pool: stablePool,
-      slippage: SLIPPAGE,
+      slippage: bot.slippage,
       from: true,
       tradeFeeMul,
       precision: stablePool.precision,

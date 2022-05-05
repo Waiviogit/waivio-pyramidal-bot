@@ -5,7 +5,6 @@ import _ from 'lodash';
 import {
   POOL_FEE,
   PYRAMIDAL_BOTS,
-  SLIPPAGE,
   TWO_DAYS_IN_SECONDS,
 } from '../constants/pyramidal-bot.constants';
 import {
@@ -97,6 +96,7 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
       triggers,
       pools: pools as unknown as marketPoolType[],
       tradeFeeMul,
+      slippage: bot.slippage,
     });
     const poolsWithToken = _.filter(
       pools,
@@ -281,6 +281,7 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
     triggers,
     pools,
     tradeFeeMul,
+    slippage,
   }: recalculateQuantitiesType): void {
     for (const trigger of triggers) {
       const pool = _.find(pools, (pool) =>
@@ -292,6 +293,7 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
         trigger,
         pool,
         tradeFeeMul,
+        slippage,
       });
       if (!isTriggerSuccess) continue;
 
@@ -605,12 +607,13 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
     trigger,
     pool,
     tradeFeeMul,
+    slippage,
   }: checkTriggerSuccessSuccessType): boolean {
     const output = this._swapOutputService.getSwapOutput({
       symbol: trigger.contractPayload.tokenSymbol,
       amountIn: trigger.contractPayload.tokenAmount,
       pool,
-      slippage: SLIPPAGE,
+      slippage,
       from: true,
       tradeFeeMul,
       precision: pool.precision,

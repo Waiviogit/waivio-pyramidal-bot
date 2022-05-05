@@ -18,6 +18,7 @@ export type pyramidalBotType = {
   startIncomeDifference: string;
   tokenPrecision: number;
   approachCoefficient: number;
+  slippage: number;
 };
 
 export type handleSwapsType = {
@@ -115,10 +116,12 @@ export type recalculateQuantitiesType = {
   triggers: triggerType[];
   pools: marketPoolType[];
   tradeFeeMul: string;
+  slippage: number;
 };
 
 export type checkTriggerSuccessSuccessType = {
   trigger: triggerType;
   pool: marketPoolType;
   tradeFeeMul: string;
+  slippage: number;
 };
