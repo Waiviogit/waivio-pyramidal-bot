@@ -565,7 +565,7 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
     await this._botClient.zremrangebyscore({
       key: PYRAMIDAL_BOT_KEYS.triggers,
       min: 1,
-      max: blockNumber - 500,
+      max: blockNumber - 30000,
     });
 
     /** setting data to redis to check triggers */
@@ -611,12 +611,12 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
       amountIn: trigger.contractPayload.tokenAmount,
       pool,
       slippage: SLIPPAGE,
-      from: trigger.contractPayload.tradeType === 'exactInput' ? true : false,
+      from: true,
       tradeFeeMul,
       precision: pool.precision,
     });
-    if (output.minAmountOut > trigger.contractPayload.minAmountOut) return true;
+    if (output.amountOut < trigger.contractPayload.minAmountOut) return false;
 
-    return false;
+    return true;
   }
 }
