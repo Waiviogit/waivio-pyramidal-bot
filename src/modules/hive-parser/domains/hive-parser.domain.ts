@@ -13,6 +13,7 @@ import {
 import { PYRAMIDAL_BOTS } from '../../pyramidal-bot/constants/pyramidal-bot.constants';
 import { PYRAMIDAL_BOT_PROVIDERS } from '../../../common/constants/providers';
 import { IPyramidalBotDomain } from '../../pyramidal-bot/interfaces/domains/pyramidal-bot-domain.interface';
+import { configService } from '../../../common/services/config.service';
 
 @Injectable()
 export class HiveParserDomain implements IHiveParserDomain {
@@ -61,6 +62,12 @@ export class HiveParserDomain implements IHiveParserDomain {
     operation: hiveOperationDataType,
     triggers: triggerType[],
   ): void {
+    const isOurTransaction = _.includes(
+      _.get(operation, 'required_auths'),
+      configService.getCustomKey('TRI_BOT_ACCOUNT'),
+    );
+    if (isOurTransaction) return;
+
     const parsedJson = JSON.parse(operation.json);
     const swaps = _.filter(
       parsedJson,

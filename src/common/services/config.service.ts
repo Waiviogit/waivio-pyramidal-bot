@@ -20,7 +20,6 @@ class ConfigService implements IConfigService {
     return this._getValue(key, true);
   }
 
-  // падает тут! почему?! выяснить!
   getRedisConfig(): string {
     const host = this._getValue('REDIS_HOST');
     const port = this._getValue('REDIS_PORT');
@@ -32,7 +31,6 @@ class ConfigService implements IConfigService {
   /** --------------------------PRIVATE METHODS----------------------------------------*/
 
   private _getValue(key: string, throwOnMissing = true): string {
-    console.log('env', this.env[key]);
     const value = this.env[key] as string;
     if (!value && throwOnMissing) {
       throw new Error(`config error. config error - missing env.${key}`);

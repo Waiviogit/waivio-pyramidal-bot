@@ -569,7 +569,6 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
       if (count === 0) data = this._getObjectForRedis(poolToBuy, timestamp);
       if (count === 1) data = this._getObjectForRedis(poolToSell, timestamp);
       if (count === 2) data = this._getObjectForRedis(stablePool, timestamp);
-
       await this._botClient.hset(key, data);
       await this._botClient.expire(key, TWO_DAYS_IN_SECONDS);
     }
