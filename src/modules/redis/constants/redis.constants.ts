@@ -1,5 +1,5 @@
 export const REDIS_KEY = Object.freeze({
-  LAST_BLOCK: 'last_block_num',
+gi  LAST_BLOCK: 'last_block_for_pyramidal',
 });
 
 export const PYRAMIDAL_BOT_KEYS = {

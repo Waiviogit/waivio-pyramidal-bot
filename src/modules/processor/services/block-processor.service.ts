@@ -38,15 +38,15 @@ export class BlockProcessorService {
     const end = process.hrtime(start);
 
     this._logger.log(`${this._currentBlock}: ${end[1] / 1000000}ms`);
-    // if (processed) {
-    //   await this._processorClient.set(
-    //     this._redisBlockKey,
-    //     `${this._currentBlock + 1}`,
-    //   );
-    await this._loadNextBlock();
-    // } else {
-    //   await setTimeout(async () => this._loadNextBlock(), 2000);
-    // }
+    if (processed) {
+      await this._processorClient.set(
+        this._redisBlockKey,
+        `${this._currentBlock + 1}`,
+      );
+      await this._loadNextBlock();
+    } else {
+      await setTimeout(async () => this._loadNextBlock(), 2000);
+    }
   }
 
   private async _processBlock(blockNumber: number): Promise<boolean> {
