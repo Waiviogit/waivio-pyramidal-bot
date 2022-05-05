@@ -615,7 +615,9 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
       tradeFeeMul,
       precision: pool.precision,
     });
-    if (output.amountOut < trigger.contractPayload.minAmountOut) return false;
+    if (new BigNumber(output.amountOut).isLessThan(trigger.contractPayload.minAmountOut)) {
+      return false;
+    }
 
     return true;
   }
