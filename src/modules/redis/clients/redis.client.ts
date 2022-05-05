@@ -58,7 +58,9 @@ export class RedisClient
 
   async hset(key: string, data: object): Promise<void> {
     try {
-      await this._client.hSet(key, data);
+      for (const [field, value] of Object.entries(data)) {
+        await this._client.hSet(key, field, value);
+      }
     } catch (error) {
       this._logger.error(error.message);
     }
