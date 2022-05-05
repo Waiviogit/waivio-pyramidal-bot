@@ -17,7 +17,7 @@ export type getSwapOutputType = {
   amountIn: string;
   pool: marketPoolType;
   slippage: number;
-  from: true;
+  from: boolean;
   tradeFeeMul: string;
   precision: string;
 };

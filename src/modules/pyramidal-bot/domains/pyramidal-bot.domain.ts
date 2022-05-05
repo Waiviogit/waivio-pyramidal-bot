@@ -5,9 +5,11 @@ import _ from 'lodash';
 import {
   POOL_FEE,
   PYRAMIDAL_BOTS,
+  SLIPPAGE,
   TWO_DAYS_IN_SECONDS,
 } from '../constants/pyramidal-bot.constants';
 import {
+  checkTriggerSuccessSuccessType,
   getFirstProfitablePointType,
   getPoolToSwapType,
   handleSwapsType,
@@ -17,6 +19,7 @@ import {
   operationType,
   poolToSwapType,
   pyramidalBotType,
+  recalculateQuantitiesType,
   updateSwapDataType,
 } from '../types/pyramidal-bot.types';
 import { REDIS_PROVIDERS } from '../../../common/constants/providers';
@@ -89,8 +92,12 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
       return;
     }
 
-    this._recalculateQuantities(triggers, pools as unknown as marketPoolType[]);
     const tradeFeeMul = _.get(params, '[0].tradeFeeMul', POOL_FEE);
+    this._recalculateQuantities({
+      triggers,
+      pools: pools as unknown as marketPoolType[],
+      tradeFeeMul,
+    });
     const poolsWithToken = _.filter(
       pools,
       (pool) => !_.includes(bot.stablePair, pool.tokenPair),
@@ -270,15 +277,23 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
         );
   }
 
-  private _recalculateQuantities(
-    triggers: triggerType[],
-    pools: marketPoolType[],
-  ): void {
+  private _recalculateQuantities({
+    triggers,
+    pools,
+    tradeFeeMul,
+  }: recalculateQuantitiesType): void {
     for (const trigger of triggers) {
       const pool = _.find(pools, (pool) =>
         _.includes(pool.tokenPair, trigger.contractPayload.tokenPair),
       );
       if (!pool) continue;
+
+      const isTriggerSuccess = this._checkTriggerSuccess({
+        trigger,
+        pool,
+        tradeFeeMul,
+      });
+      if (!isTriggerSuccess) continue;
 
       const [base] = pool.tokenPair.split(':');
       if (base === trigger.contractPayload.tokenPair) {
@@ -584,5 +599,24 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
       tokenPair: pool.tokenPair,
       timestamp,
     };
+  }
+
+  private _checkTriggerSuccess({
+    trigger,
+    pool,
+    tradeFeeMul,
+  }: checkTriggerSuccessSuccessType): boolean {
+    const output = this._swapOutputService.getSwapOutput({
+      symbol: trigger.contractPayload.tokenSymbol,
+      amountIn: trigger.contractPayload.tokenAmount,
+      pool,
+      slippage: SLIPPAGE,
+      from: trigger.contractPayload.tradeType === 'exactInput' ? true : false,
+      tradeFeeMul,
+      precision: pool.precision,
+    });
+    if (output.minAmountOut > trigger.contractPayload.minAmountOut) return true;
+
+    return false;
   }
 }

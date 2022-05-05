@@ -29,7 +29,7 @@ export class SwapOutputService {
     buyOutput: swapOutputType;
     equalizeOutput: swapOutputType;
   } {
-    const buyOutput = this._getSwapOutput({
+    const buyOutput = this.getSwapOutput({
       symbol: poolToBuy.stableTokenSymbol,
       amountIn: startAmountIn,
       pool: _.find(poolsWithToken, (pool) =>
@@ -40,7 +40,7 @@ export class SwapOutputService {
       tradeFeeMul,
       precision: poolToBuy.poolPrecision,
     });
-    const sellOutput = this._getSwapOutput({
+    const sellOutput = this.getSwapOutput({
       symbol: bot.tokenSymbol,
       amountIn: new BigNumber(_.get(buyOutput, 'minAmountOut')).toFixed(
         bot.tokenPrecision,
@@ -53,7 +53,7 @@ export class SwapOutputService {
       tradeFeeMul,
       precision: poolToSell.poolPrecision,
     });
-    const equalizeOutput = this._getSwapOutput({
+    const equalizeOutput = this.getSwapOutput({
       symbol: poolToSell.stableTokenSymbol,
       amountIn: new BigNumber(_.get(sellOutput, 'minAmountOut')).toFixed(
         poolToSell.stableTokenPrecision,
@@ -68,7 +68,7 @@ export class SwapOutputService {
     return { buyOutput, sellOutput, equalizeOutput };
   }
 
-  private _getSwapOutput({
+  getSwapOutput({
     symbol,
     amountIn,
     pool,
@@ -213,6 +213,8 @@ export class SwapOutputService {
       json,
     };
   }
+
+  /** --------------------------PRIVATE METHODS----------------------------------------*/
 
   private _calcFee({
     tokenAmount,
