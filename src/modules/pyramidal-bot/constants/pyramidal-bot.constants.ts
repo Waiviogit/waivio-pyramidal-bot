@@ -45,6 +45,6 @@ export const PYRAMIDAL_BOTS = [BEE_HBD_HIVE, CENT_HBD_HIVE, BUSD_HBD_HIVE];
 
 export const SLIPPAGE = 0.0003;
 
-export const DAY_IN_SECONDS = 86400;
+export const TWO_DAYS_IN_SECONDS = 172800;
 
 export const POOL_FEE = 0.9975;

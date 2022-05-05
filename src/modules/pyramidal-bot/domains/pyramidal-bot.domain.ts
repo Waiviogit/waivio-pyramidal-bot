@@ -3,9 +3,9 @@ import { triggerType } from '../../hive-parser/types/hive-parser.types';
 import { IPyramidalBotDomain } from '../interfaces/domains/pyramidal-bot-domain.interface';
 import _ from 'lodash';
 import {
-  DAY_IN_SECONDS,
   POOL_FEE,
   PYRAMIDAL_BOTS,
+  TWO_DAYS_IN_SECONDS,
 } from '../constants/pyramidal-bot.constants';
 import {
   getFirstProfitablePointType,
@@ -89,7 +89,7 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
       return;
     }
 
-  //  this._recalculateQuantities(triggers, pools as unknown as marketPoolType[]);
+    this._recalculateQuantities(triggers, pools as unknown as marketPoolType[]);
     const tradeFeeMul = _.get(params, '[0].tradeFeeMul', POOL_FEE);
     const poolsWithToken = _.filter(
       pools,
@@ -571,7 +571,7 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
       if (count === 2) data = this._getObjectForRedis(stablePool, timestamp);
 
       await this._botClient.hset(key, data);
-      await this._botClient.expire(key, DAY_IN_SECONDS);
+      await this._botClient.expire(key, TWO_DAYS_IN_SECONDS);
     }
   }
 
