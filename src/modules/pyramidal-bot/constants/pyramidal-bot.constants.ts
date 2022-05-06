@@ -41,7 +41,7 @@ const BUSD_HBD_HIVE = Object.freeze({
   startIncomeDifference: 0,
   tokenPrecision: 8,
   approachCoefficient: 0.99,
-  slippage: 0.0007,
+  slippage: 0.0003,
 });
 
 export const PYRAMIDAL_BOTS = [BEE_HBD_HIVE, CENT_HBD_HIVE, BUSD_HBD_HIVE];
