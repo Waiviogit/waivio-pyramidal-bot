@@ -96,7 +96,7 @@ export class BlockchainApiService {
       const resp = await axios.post(
         this.url,
         { jsonrpc: '2.0', method, params, id: 1 },
-        { timeout: 8000 },
+        { timeout: 1000 },
       );
       if (resp?.data?.error) {
         this._changeNode();

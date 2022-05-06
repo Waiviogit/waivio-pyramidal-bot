@@ -1,5 +1,6 @@
 export const HIVE_RPC_NODES = [
   'https://api.openhive.network', // 30 - 70 = 50ms
+  'https://blocks.waivio.com',
   'https://rpc.ecency.com', // 30 - 80 = 55ms
   'https://hive-api.arcange.eu', // 40 - 100 = 70ms
   'https://rpc.ausbit.dev', // 90 - 180 = 135ms
