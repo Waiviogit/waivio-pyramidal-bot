@@ -45,7 +45,7 @@ export class BlockProcessorService {
       );
       await this._loadNextBlock();
     } else {
-      await setTimeout(async () => this._loadNextBlock(), 2000);
+      await setTimeout(async () => this._loadNextBlock(), 1000);
     }
   }
 
@@ -67,7 +67,6 @@ export class BlockProcessorService {
 
   private async _getBlockNumber(): Promise<number> {
     const blockNumber = await this._processorClient.get(this._redisBlockKey);
-    console.log('blockNumber', blockNumber);
     if (blockNumber) return +blockNumber;
 
     return this._startDefaultBlock;
