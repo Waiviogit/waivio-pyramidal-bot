@@ -120,17 +120,6 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
       balances: balances as unknown as tokenBalanceType[],
     });
 
-    const bla = await this._swapOutputService.getSwapOutput({
-      symbol: poolToBuy.stableTokenSymbol,
-      amountIn: poolToBuy.balance,
-      pool: _.find(poolsWithToken, (pool) =>
-        pool.tokenPair.includes(poolToBuy.tokenPair),
-      ),
-      slippage: bot.slippage,
-      tradeFeeMul,
-      precision: poolToBuy.poolPrecision,
-    });
-
     const operations: operationType[] = [];
 
     this._getFirstProfitableSwapPoint({
