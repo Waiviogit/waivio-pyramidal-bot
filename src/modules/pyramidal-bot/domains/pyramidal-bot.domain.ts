@@ -90,7 +90,7 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
 
       return;
     }
-
+    console.log('balances', balances);
     const tradeFeeMul = _.get(params, '[0].tradeFeeMul', POOL_FEE);
     this._recalculateQuantities({
       triggers,
@@ -119,6 +119,17 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
       stablePool,
       tokens: tokens as unknown as tokenParamsType[],
       balances: balances as unknown as tokenBalanceType[],
+    });
+
+    const bla = await this._swapOutputService.getSwapOutput({
+      symbol: poolToBuy.stableTokenSymbol,
+      amountIn: poolToBuy.balance,
+      pool: _.find(poolsWithToken, (pool) =>
+        pool.tokenPair.includes(poolToBuy.tokenPair),
+      ),
+      slippage: bot.slippage,
+      tradeFeeMul,
+      precision: poolToBuy.poolPrecision,
     });
 
     const operations: operationType[] = [];
@@ -614,7 +625,6 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
       amountIn: trigger.contractPayload.tokenAmount,
       pool,
       slippage,
-      from: true,
       tradeFeeMul,
       precision: pool.precision,
     });
