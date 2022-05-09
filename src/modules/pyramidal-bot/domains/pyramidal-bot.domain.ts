@@ -90,6 +90,7 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
 
       return;
     }
+
     const tradeFeeMul = _.get(params, '[0].tradeFeeMul', POOL_FEE);
     this._recalculateQuantities({
       triggers,
