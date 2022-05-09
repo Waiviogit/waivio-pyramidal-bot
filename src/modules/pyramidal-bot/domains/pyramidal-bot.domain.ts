@@ -614,7 +614,6 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
       amountIn: trigger.contractPayload.tokenAmount,
       pool,
       slippage,
-      from: true,
       tradeFeeMul,
       precision: pool.precision,
     });
