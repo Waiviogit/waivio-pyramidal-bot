@@ -56,7 +56,7 @@ export type swapOutputType = {
  // newPrices: { tokenExchangedOn: string; tokenToExchange: string };
 //  fee: string;
   json: jsonType;
-//  minAmountOut: string;
+  minAmountOut: string;
   amountOut: string;
   // newBalances: {
   //   tokenExchangedOn: string;
