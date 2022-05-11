@@ -53,14 +53,14 @@ export type jsonType = {
 };
 
 export type swapOutputType = {
-  newPrices: { tokenExchangedOn: string; tokenToExchange: string };
-  fee: string;
+ // newPrices: { tokenExchangedOn: string; tokenToExchange: string };
+//  fee: string;
   json: jsonType;
-  minAmountOut: string;
+//  minAmountOut: string;
   amountOut: string;
-  newBalances: {
-    tokenExchangedOn: string;
-    tokenToExchange: string;
-  };
-  priceImpact: string;
+  // newBalances: {
+  //   tokenExchangedOn: string;
+  //   tokenToExchange: string;
+  // };
+  // priceImpact: string;
 };
