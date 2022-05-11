@@ -123,17 +123,17 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
 
     const operations: operationType[] = [];
 
-    this._getFirstProfitableSwapPoint({
-      poolToBuy,
-      poolsWithToken,
-      tradeFeeMul,
-      bot,
-      poolToSell,
-      stablePool,
-      operations,
-      startAmountIn: poolToBuy.balance,
-      prevIncomeDifference: bot.startIncomeDifference,
-    });
+    // this._getFirstProfitableSwapPoint({
+    //   poolToBuy,
+    //   poolsWithToken,
+    //   tradeFeeMul,
+    //   bot,
+    //   poolToSell,
+    //   stablePool,
+    //   operations,
+    //   startAmountIn: poolToBuy.balance,
+    //   prevIncomeDifference: bot.startIncomeDifference,
+    // });
     if (operations.length) {
       this._approachMostProfitableSwapPoint({
         poolToBuy,
