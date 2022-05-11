@@ -150,6 +150,7 @@ export class SwapOutputService {
       .times(fee);
     const minAmountOutToFixed = minAmountOut
       .minus(priceImpactFeeForMinAmount)
+      .minus(fee)
       .toFixed(Number(precision), BigNumber.ROUND_DOWN);
 
     const json = this._operationForJson({
