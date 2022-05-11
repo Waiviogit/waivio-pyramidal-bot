@@ -38,7 +38,6 @@ export class SwapOutputService {
       tradeFeeMul,
       precision: poolToBuy.poolPrecision,
     });
-    console.log('buyOutput', buyOutput);
     const sellOutput = this.getSwapOutput({
       symbol: bot.tokenSymbol,
       amountIn: new BigNumber(_.get(buyOutput, 'minAmountOut')).toFixed(
@@ -51,7 +50,6 @@ export class SwapOutputService {
       tradeFeeMul,
       precision: poolToSell.poolPrecision,
     });
-    console.log('sellOutput', sellOutput);
     const equalizeOutput = this.getSwapOutput({
       symbol: poolToSell.stableTokenSymbol,
       amountIn: new BigNumber(_.get(sellOutput, 'minAmountOut')).toFixed(
@@ -62,7 +60,6 @@ export class SwapOutputService {
       tradeFeeMul,
       precision: stablePool.precision,
     });
-    console.log('equalizeOutput', equalizeOutput);
 
     return { buyOutput, sellOutput, equalizeOutput };
   }
