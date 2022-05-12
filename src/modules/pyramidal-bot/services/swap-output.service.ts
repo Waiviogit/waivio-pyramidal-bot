@@ -81,27 +81,22 @@ export class SwapOutputService {
     const priceImpact = isBase
       ? new BigNumber(amountIn)
           .times(100)
-          .div(baseQuantity)
+          .div(new BigNumber(baseQuantity).plus(amountIn).toFixed())
           .toFixed(Number(precision), BigNumber.ROUND_UP)
       : new BigNumber(amountIn)
           .times(100)
-          .div(quoteQuantity)
+          .div(new BigNumber(quoteQuantity).plus(amountIn).toFixed())
           .toFixed(Number(precision), BigNumber.ROUND_UP);
-    const amountOut = isBase
-      ? new BigNumber(amountIn)
-          .multipliedBy(
-            new BigNumber(basePrice)
-              .minus(priceImpact)
-              .toFixed(Number(precision), BigNumber.ROUND_DOWN),
-          )
+    const newPrice = isBase
+      ? new BigNumber(basePrice)
+          .minus(priceImpact)
           .toFixed(Number(precision), BigNumber.ROUND_DOWN)
-      : new BigNumber(amountIn)
-          .multipliedBy(
-            new BigNumber(quotePrice)
-              .minus(priceImpact)
-              .toFixed(Number(precision), BigNumber.ROUND_DOWN),
-          )
+      : new BigNumber(quotePrice)
+          .minus(priceImpact)
           .toFixed(Number(precision), BigNumber.ROUND_DOWN);
+    const amountOut = new BigNumber(amountIn)
+      .multipliedBy(newPrice)
+      .toFixed(Number(precision), BigNumber.ROUND_DOWN);
     const fee = new BigNumber(amountOut)
       .multipliedBy(new BigNumber(1).minus(tradeFeeMul).toFixed())
       .toFixed(Number(precision), BigNumber.ROUND_UP);
