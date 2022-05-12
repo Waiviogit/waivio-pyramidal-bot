@@ -74,27 +74,37 @@ export class SwapOutputService {
   }: getSwapOutputType): swapOutputType {
     if (!pool) return;
 
-    const { baseQuantity, quoteQuantity, tokenPair } = pool;
+    const { baseQuantity, quoteQuantity, tokenPair, basePrice, quotePrice } =
+      pool;
     const [baseSymbol] = tokenPair.split(':');
     const isBase = symbol === baseSymbol;
-
-    const basePrice = new BigNumber(baseQuantity)
-      .dividedBy(quoteQuantity)
-      .toFixed(Number(precision), BigNumber.ROUND_DOWN);
-    const quotePrice = new BigNumber(quoteQuantity)
-      .dividedBy(baseQuantity)
-      .toFixed(Number(precision), BigNumber.ROUND_DOWN);
-
+    const priceImpact = isBase
+      ? new BigNumber(amountIn)
+          .times(100)
+          .div(baseQuantity)
+          .toFixed(Number(precision), BigNumber.ROUND_UP)
+      : new BigNumber(amountIn)
+          .times(100)
+          .div(quoteQuantity)
+          .toFixed(Number(precision), BigNumber.ROUND_UP);
     const amountOut = isBase
       ? new BigNumber(amountIn)
-          .multipliedBy(quotePrice)
+          .multipliedBy(
+            new BigNumber(basePrice)
+              .minus(priceImpact)
+              .toFixed(Number(precision), BigNumber.ROUND_DOWN),
+          )
           .toFixed(Number(precision), BigNumber.ROUND_DOWN)
       : new BigNumber(amountIn)
-          .multipliedBy(basePrice)
+          .multipliedBy(
+            new BigNumber(quotePrice)
+              .minus(priceImpact)
+              .toFixed(Number(precision), BigNumber.ROUND_DOWN),
+          )
           .toFixed(Number(precision), BigNumber.ROUND_DOWN);
     const fee = new BigNumber(amountOut)
       .multipliedBy(new BigNumber(1).minus(tradeFeeMul).toFixed())
-      .toFixed(Number(precision), BigNumber.ROUND_DOWN);
+      .toFixed(Number(precision), BigNumber.ROUND_UP);
     // let liquidityIn;
     // let liquidityOut;
     // if (isBase) {
@@ -137,15 +147,7 @@ export class SwapOutputService {
     //   .minus(tokenExchangedOnNewBalance)
     //   .absoluteValue();
     //
-    const priceImpact = isBase
-      ? new BigNumber(amountIn)
-          .times(100)
-          .div(baseQuantity)
-          .toFixed(Number(precision), BigNumber.ROUND_DOWN)
-      : new BigNumber(amountIn)
-          .times(100)
-          .div(quoteQuantity)
-          .toFixed(Number(precision), BigNumber.ROUND_DOWN);
+
     //
     // const newBalances = {
     //   tokenToExchange: tokenToExchangeNewBalance,
@@ -179,7 +181,6 @@ export class SwapOutputService {
     //   .toFixed(Number(precision), BigNumber.ROUND_DOWN);
     const amountOutToFixed = new BigNumber(amountOut)
       .minus(fee)
-      .minus(priceImpact)
       .toFixed(Number(precision), BigNumber.ROUND_DOWN);
     const minAmountOut = new BigNumber(amountOutToFixed)
       .minus(
