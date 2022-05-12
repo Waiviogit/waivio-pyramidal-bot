@@ -97,18 +97,23 @@ export class SwapOutputService {
     const amountOut = new BigNumber(amountIn)
       .multipliedBy(newPrice)
       .toFixed(Number(precision), BigNumber.ROUND_DOWN);
-    const fee = new BigNumber(amountOut)
-      .multipliedBy(new BigNumber(1).minus(tradeFeeMul).toFixed())
-      .toFixed(Number(precision), BigNumber.ROUND_UP);
-    // let liquidityIn;
-    // let liquidityOut;
-    // if (isBase) {
-    //   liquidityIn = pool.baseQuantity;
-    //   liquidityOut = pool.quoteQuantity;
-    // } else {
-    //   liquidityIn = pool.quoteQuantity;
-    //   liquidityOut = pool.baseQuantity;
-    // }
+
+    let liquidityIn;
+    let liquidityOut;
+    if (isBase) {
+      liquidityIn = pool.baseQuantity;
+      liquidityOut = pool.quoteQuantity;
+    } else {
+      liquidityIn = pool.quoteQuantity;
+      liquidityOut = pool.baseQuantity;
+    }
+    const fee = this._calcFee({
+      tokenAmount: amountIn,
+      tradeFeeMul,
+      precision,
+      liquidityIn,
+      liquidityOut,
+    });
     //
     // const tokenToExchange = isBase ? baseQuantity : quoteQuantity;
     //
@@ -174,10 +179,12 @@ export class SwapOutputService {
     //   .minus(priceImpactFeeForMinAmount)
     //   .minus(fee)
     //   .toFixed(Number(precision), BigNumber.ROUND_DOWN);
-    const priceImpactFee = new BigNumber(priceImpact).div(100).times(fee);
+    // const priceImpactFee = new BigNumber(priceImpact)
+    //   .div(100)
+    //   .times(fee)
+    //   .toFixed(Number(precision), BigNumber.ROUND_UP);
     const amountOutToFixed = new BigNumber(amountOut)
       .minus(fee)
-      .minus(priceImpactFee)
       .toFixed(Number(precision), BigNumber.ROUND_DOWN);
     const minAmountOut = new BigNumber(amountOutToFixed)
       .minus(
