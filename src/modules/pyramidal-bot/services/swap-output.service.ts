@@ -161,7 +161,7 @@ export class SwapOutputService {
     //     .toFixed(Number(precision), BigNumber.ROUND_DOWN),
     // };
     //
-    // const priceImpactFee = new BigNumber(priceImpact).div(100).times(fee);
+
     // const amountOutToFixed = amountOut
     //   .minus(priceImpactFee)
     //   .toFixed(Number(precision), BigNumber.ROUND_DOWN);
@@ -174,8 +174,10 @@ export class SwapOutputService {
     //   .minus(priceImpactFeeForMinAmount)
     //   .minus(fee)
     //   .toFixed(Number(precision), BigNumber.ROUND_DOWN);
+    const priceImpactFee = new BigNumber(priceImpact).div(100).times(fee);
     const amountOutToFixed = new BigNumber(amountOut)
       .minus(fee)
+      .minus(priceImpactFee)
       .toFixed(Number(precision), BigNumber.ROUND_DOWN);
     const minAmountOut = new BigNumber(amountOutToFixed)
       .minus(
