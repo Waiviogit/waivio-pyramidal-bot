@@ -40,7 +40,7 @@ export class SwapOutputService {
     });
     const sellOutput = this.getSwapOutput({
       symbol: bot.tokenSymbol,
-      amountIn: new BigNumber(_.get(buyOutput, 'minAmountOut')).toFixed(
+      amountIn: new BigNumber(_.get(buyOutput, 'amountOut')).toFixed(
         bot.tokenPrecision,
       ),
       pool: _.find(poolsWithToken, (pool) =>
@@ -52,7 +52,7 @@ export class SwapOutputService {
     });
     const equalizeOutput = this.getSwapOutput({
       symbol: poolToSell.stableTokenSymbol,
-      amountIn: new BigNumber(_.get(sellOutput, 'minAmountOut')).toFixed(
+      amountIn: new BigNumber(_.get(sellOutput, 'amountOut')).toFixed(
         poolToSell.stableTokenPrecision,
       ),
       pool: stablePool,
@@ -137,7 +137,15 @@ export class SwapOutputService {
     //   .minus(tokenExchangedOnNewBalance)
     //   .absoluteValue();
     //
-    // const priceImpact = new BigNumber(amountIn).times(100).div(tokenToExchange);
+    const priceImpact = isBase
+      ? new BigNumber(amountIn)
+          .times(100)
+          .div(baseQuantity)
+          .toFixed(Number(precision), BigNumber.ROUND_DOWN)
+      : new BigNumber(amountIn)
+          .times(100)
+          .div(quoteQuantity)
+          .toFixed(Number(precision), BigNumber.ROUND_DOWN);
     //
     // const newBalances = {
     //   tokenToExchange: tokenToExchangeNewBalance,
@@ -171,6 +179,7 @@ export class SwapOutputService {
     //   .toFixed(Number(precision), BigNumber.ROUND_DOWN);
     const amountOutToFixed = new BigNumber(amountOut)
       .minus(fee)
+      .minus(priceImpact)
       .toFixed(Number(precision), BigNumber.ROUND_DOWN);
     const minAmountOut = new BigNumber(amountOutToFixed)
       .minus(
@@ -187,12 +196,12 @@ export class SwapOutputService {
     });
 
     return {
-     // fee,
-    //  priceImpact: priceImpact.toFixed(2),
+      // fee,
+      //  priceImpact: priceImpact.toFixed(2),
       minAmountOut,
       amountOut: amountOutToFixed,
-   //   newBalances,
-   //   newPrices,
+      //   newBalances,
+      //   newPrices,
       json,
     };
   }
