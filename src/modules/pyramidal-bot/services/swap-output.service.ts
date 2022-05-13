@@ -40,7 +40,7 @@ export class SwapOutputService {
     });
     const sellOutput = this.getSwapOutput({
       symbol: bot.tokenSymbol,
-      amountIn: new BigNumber(_.get(buyOutput, 'amountOut')).toFixed(
+      amountIn: new BigNumber(_.get(buyOutput, 'minAmountOut')).toFixed(
         bot.tokenPrecision,
       ),
       pool: _.find(poolsWithToken, (pool) =>
@@ -52,7 +52,7 @@ export class SwapOutputService {
     });
     const equalizeOutput = this.getSwapOutput({
       symbol: poolToSell.stableTokenSymbol,
-      amountIn: new BigNumber(_.get(sellOutput, 'amountOut')).toFixed(
+      amountIn: new BigNumber(_.get(sellOutput, 'minAmountOut')).toFixed(
         poolToSell.stableTokenPrecision,
       ),
       pool: stablePool,
