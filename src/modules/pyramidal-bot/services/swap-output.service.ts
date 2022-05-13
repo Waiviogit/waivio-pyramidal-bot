@@ -204,9 +204,13 @@ export class SwapOutputService {
           .toFixed(Number(precision), BigNumber.ROUND_UP),
       )
       .toFixed(Number(precision), BigNumber.ROUND_DOWN);
-
-    const amountOutToFixed = new BigNumber(amountOut)
-      .multipliedBy(priceImpact)
+    // возможно нужно будет убрать минус фи отсюда. для теста добавлено
+    const amountOutToFixed = new BigNumber(
+      new BigNumber(amountOut)
+        .multipliedBy(priceImpact)
+        .toFixed(Number(precision), BigNumber.ROUND_DOWN),
+    )
+      .minus(fee)
       .toFixed(Number(precision), BigNumber.ROUND_DOWN);
     const minAmountOut = new BigNumber(amountOutToFixed)
       .minus(
