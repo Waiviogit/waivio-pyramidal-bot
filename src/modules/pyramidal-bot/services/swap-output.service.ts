@@ -107,9 +107,6 @@ export class SwapOutputService {
     const newLiquidityIn = new BigNumber(liquidityIn)
       .plus(amountIn)
       .toFixed(Number(precision), BigNumber.ROUND_DOWN);
-    const newPrice = new BigNumber(liquidityOut)
-      .dividedBy(newLiquidityIn)
-      .toFixed(Number(precision), BigNumber.ROUND_DOWN);
 
     const fee = new BigNumber(
       new BigNumber(amountIn).multipliedBy(
@@ -120,6 +117,14 @@ export class SwapOutputService {
     )
       .multipliedBy(0.0025)
       .toFixed(Number(precision), BigNumber.ROUND_UP);
+
+    const newLiquidityOut = new BigNumber(liquidityOut)
+      .minus(fee)
+      .toFixed(Number(precision), BigNumber.ROUND_DOWN);
+    const newPrice = new BigNumber(newLiquidityOut)
+      .dividedBy(newLiquidityIn)
+      .toFixed(Number(precision), BigNumber.ROUND_DOWN);
+
     const amountOut = new BigNumber(amountIn)
       .multipliedBy(newPrice)
       .toFixed(Number(precision), BigNumber.ROUND_DOWN);
@@ -191,8 +196,17 @@ export class SwapOutputService {
     //   .div(100)
     //   .times(fee)
     //   .toFixed(Number(precision), BigNumber.ROUND_UP);
+    const priceImpact = new BigNumber(1)
+      .minus(
+        new BigNumber(amountIn)
+          .multipliedBy(100)
+          .dividedBy(newLiquidityIn)
+          .toFixed(Number(precision), BigNumber.ROUND_UP),
+      )
+      .toFixed(Number(precision), BigNumber.ROUND_DOWN);
+
     const amountOutToFixed = new BigNumber(amountOut)
-      .minus(fee)
+      .multipliedBy(priceImpact)
       .toFixed(Number(precision), BigNumber.ROUND_DOWN);
     const minAmountOut = new BigNumber(amountOutToFixed)
       .minus(
