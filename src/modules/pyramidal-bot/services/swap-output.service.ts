@@ -40,13 +40,13 @@ export class SwapOutputService {
     });
     const sellOutput = this.getSwapOutput({
       symbol: bot.tokenSymbol,
-      amountIn: new BigNumber(_.get(buyOutput, 'minAmountOut')).toFixed(
+      amountIn: new BigNumber(_.get(buyOutput, 'amountOut')).toFixed(
         bot.tokenPrecision,
       ),
       pool: _.find(poolsWithToken, (pool) =>
         pool.tokenPair.includes(poolToSell.tokenPair),
       ),
-      slippage: 0.005,
+      slippage: bot.slippage,
       tradeFeeMul,
       precision: poolToSell.poolPrecision,
     });
@@ -74,47 +74,55 @@ export class SwapOutputService {
   }: getSwapOutputType): swapOutputType {
     if (!pool) return;
 
-    const { baseQuantity, quoteQuantity, tokenPair, basePrice, quotePrice } =
-      pool;
+    const { baseQuantity, quoteQuantity, tokenPair } = pool;
     const [baseSymbol] = tokenPair.split(':');
     const isBase = symbol === baseSymbol;
-    const priceImpact = isBase
-      ? new BigNumber(amountIn)
-          .times(100)
-          .div(new BigNumber(baseQuantity).plus(amountIn).toFixed())
-          .toFixed(Number(precision), BigNumber.ROUND_UP)
-      : new BigNumber(amountIn)
-          .times(100)
-          .div(new BigNumber(quoteQuantity).plus(amountIn).toFixed())
-          .toFixed(Number(precision), BigNumber.ROUND_UP);
-    const newPrice = isBase
-      ? new BigNumber(basePrice)
-          .minus(priceImpact)
-          .toFixed(Number(precision), BigNumber.ROUND_DOWN)
-      : new BigNumber(quotePrice)
-          .minus(priceImpact)
-          .toFixed(Number(precision), BigNumber.ROUND_DOWN);
-    const amountOut = new BigNumber(amountIn)
-      .multipliedBy(newPrice)
-      .toFixed(Number(precision), BigNumber.ROUND_DOWN);
-
+    // const priceImpact = isBase
+    //   ? new BigNumber(amountIn)
+    //       .times(100)
+    //       .div(new BigNumber(baseQuantity).plus(amountIn).toFixed())
+    //       .toFixed(Number(precision), BigNumber.ROUND_UP)
+    //   : new BigNumber(amountIn)
+    //       .times(100)
+    //       .div(new BigNumber(quoteQuantity).plus(amountIn).toFixed())
+    //       .toFixed(Number(precision), BigNumber.ROUND_UP);
+    // console.log('priceImpact', priceImpact);
+    // const newPrice = isBase
+    //   ? new BigNumber(basePrice)
+    //       .minus(priceImpact)
+    //       .toFixed(Number(precision), BigNumber.ROUND_DOWN)
+    //   : new BigNumber(quotePrice)
+    //       .minus(priceImpact)
+    //       .toFixed(Number(precision), BigNumber.ROUND_DOWN);
     let liquidityIn;
     let liquidityOut;
     if (isBase) {
-      liquidityIn = pool.baseQuantity;
-      liquidityOut = pool.quoteQuantity;
+      liquidityIn = baseQuantity;
+      liquidityOut = quoteQuantity;
     } else {
-      liquidityIn = pool.quoteQuantity;
-      liquidityOut = pool.baseQuantity;
+      liquidityIn = quoteQuantity;
+      liquidityOut = baseQuantity;
     }
-    const fee = this._calcFee({
-      tokenAmount: amountIn,
-      tradeFeeMul,
-      precision,
-      liquidityIn,
-      liquidityOut,
-    });
-    //
+
+    const newLiquidityIn = new BigNumber(liquidityIn)
+      .plus(amountIn)
+      .toFixed(Number(precision), BigNumber.ROUND_DOWN);
+    const newPrice = new BigNumber(liquidityOut)
+      .dividedBy(newLiquidityIn)
+      .toFixed(Number(precision), BigNumber.ROUND_DOWN);
+
+    const fee = new BigNumber(
+      new BigNumber(amountIn).multipliedBy(
+        new BigNumber(liquidityOut)
+          .dividedBy(newLiquidityIn)
+          .toFixed(Number(precision), BigNumber.ROUND_DOWN),
+      ),
+    )
+      .multipliedBy(0.0025)
+      .toFixed(Number(precision), BigNumber.ROUND_UP);
+    const amountOut = new BigNumber(amountIn)
+      .multipliedBy(newPrice)
+      .toFixed(Number(precision), BigNumber.ROUND_DOWN);
     // const tokenToExchange = isBase ? baseQuantity : quoteQuantity;
     //
     // const tokenExchangedOn = isBase ? quoteQuantity : baseQuantity;
