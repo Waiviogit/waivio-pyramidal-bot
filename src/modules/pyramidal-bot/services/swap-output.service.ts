@@ -46,13 +46,13 @@ export class SwapOutputService {
       pool: _.find(poolsWithToken, (pool) =>
         pool.tokenPair.includes(poolToSell.tokenPair),
       ),
-      slippage: bot.slippage,
+      slippage: 0.005,
       tradeFeeMul,
       precision: poolToSell.poolPrecision,
     });
     const equalizeOutput = this.getSwapOutput({
       symbol: poolToSell.stableTokenSymbol,
-      amountIn: new BigNumber(_.get(sellOutput, 'minAmountOut')).toFixed(
+      amountIn: new BigNumber(_.get(sellOutput, 'amountOut')).toFixed(
         poolToSell.stableTokenPrecision,
       ),
       pool: stablePool,
