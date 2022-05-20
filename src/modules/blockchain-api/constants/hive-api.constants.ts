@@ -1,9 +1,10 @@
 export const HIVE_RPC_NODES = [
   'https://api.openhive.network', // 30 - 70 = 50ms
-  'https://rpc.ecency.com', // 30 - 80 = 55ms
   'https://hive-api.arcange.eu', // 40 - 100 = 70ms
+  'https://hived.emre.sh', // Finland
+  'https://api.pharesim.me', // Germany
+  'https://api.deathwing.me', //Germany
   'https://blocks.waivio.com',
-  'https://rpc.ausbit.dev', // 90 - 180 = 135ms
   'https://anyx.io', // 270 - 500 = 385ms
   'https://api.hive.blog', // 270 - 600 = 435ms
 ];

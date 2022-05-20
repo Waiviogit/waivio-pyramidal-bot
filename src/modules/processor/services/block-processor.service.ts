@@ -25,7 +25,6 @@ export class BlockProcessorService {
   ) {}
 
   async start(): Promise<void> {
-    console.log('started!');
     await this._loadNextBlock();
   }
 

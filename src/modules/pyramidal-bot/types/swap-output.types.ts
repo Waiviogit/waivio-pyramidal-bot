@@ -28,11 +28,6 @@ export type getAmountOut = {
   tradeFeeMul: string;
 };
 
-export type calculateFeeType = getAmountOut & {
-  tokenAmount: string | BigNumber;
-  precision: string;
-};
-
 export type operationForJsonType = {
   tokenPair: string;
   minAmountOut: string;
@@ -53,14 +48,7 @@ export type jsonType = {
 };
 
 export type swapOutputType = {
- // newPrices: { tokenExchangedOn: string; tokenToExchange: string };
-//  fee: string;
   json: jsonType;
   minAmountOut: string;
   amountOut: string;
-  // newBalances: {
-  //   tokenExchangedOn: string;
-  //   tokenToExchange: string;
-  // };
-  // priceImpact: string;
 };
