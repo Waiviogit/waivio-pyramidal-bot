@@ -4,9 +4,10 @@ export const HIVE_RPC_NODES = [
   'https://hived.emre.sh', // Finland
   'https://api.pharesim.me', // Germany
   'https://api.deathwing.me', //Germany
-  'https://blocks.waivio.com',
-  'https://anyx.io', // 270 - 500 = 385ms
-  'https://api.hive.blog', // 270 - 600 = 435ms
+  // following nodes are better for production
+  // 'https://blocks.waivio.com',
+  // 'https://anyx.io', // 270 - 500 = 385ms
+  // 'https://api.hive.blog', // 270 - 600 = 435ms
 ];
 
 const HIVE_API = Object.freeze({

@@ -69,6 +69,8 @@ export class HiveParserDomain implements IHiveParserDomain {
     if (isOurTransaction) return;
 
     const parsedJson = JSON.parse(operation.json);
+    if (!parsedJson || !parsedJson.length) return;
+
     const swaps = _.filter(
       parsedJson,
       (el) =>
