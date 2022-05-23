@@ -1,6 +1,7 @@
 import { marketPoolType } from '../../blockchain-api/types/hive-engine.types';
 import { poolToSwapType, pyramidalBotType } from './pyramidal-bot.types';
 import BigNumber from 'bignumber.js';
+import { triggerType } from '../../hive-parser/types/hive-parser.types';
 
 export type calculateOutputsType = {
   poolToBuy: poolToSwapType;
@@ -10,6 +11,7 @@ export type calculateOutputsType = {
   bot: pyramidalBotType;
   poolToSell: poolToSwapType;
   stablePool: marketPoolType;
+  triggers: triggerType[];
 };
 
 export type getSwapOutputType = {

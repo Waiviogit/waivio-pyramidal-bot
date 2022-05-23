@@ -19,6 +19,7 @@ export type pyramidalBotType = {
   tokenPrecision: number;
   approachCoefficient: number;
   slippage: number;
+  lowerSlippage: number;
 };
 
 export type handleSwapsType = {
@@ -95,6 +96,7 @@ export type mostProfitablePointType = {
   stablePool: marketPoolType;
   operations: operationType[];
   prevIncomeDifference: string;
+  triggers: triggerType[];
 };
 
 export type updateSwapDataType = {

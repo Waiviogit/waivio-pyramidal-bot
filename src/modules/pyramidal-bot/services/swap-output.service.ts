@@ -22,6 +22,7 @@ export class SwapOutputService {
     bot,
     poolToSell,
     stablePool,
+    triggers,
   }: calculateOutputsType): {
     sellOutput: swapOutputType;
     buyOutput: swapOutputType;
@@ -33,29 +34,41 @@ export class SwapOutputService {
       pool: _.find(poolsWithToken, (pool) =>
         pool.tokenPair.includes(poolToBuy.tokenPair),
       ),
-      slippage: bot.slippage,
+      slippage: triggers.find((trigger) =>
+        trigger.contractPayload.tokenPair.includes(poolToBuy.tokenPair),
+      )
+        ? bot.slippage
+        : bot.lowerSlippage,
       tradeFeeMul,
       precision: poolToBuy.poolPrecision,
     });
     const sellOutput = this.getSwapOutput({
       symbol: bot.tokenSymbol,
-      amountIn: new BigNumber(_.get(buyOutput, 'amountOut')).toFixed(
+      amountIn: new BigNumber(_.get(buyOutput, 'minAmountOut')).toFixed(
         bot.tokenPrecision,
       ),
       pool: _.find(poolsWithToken, (pool) =>
         pool.tokenPair.includes(poolToSell.tokenPair),
       ),
-      slippage: bot.slippage,
+      slippage: triggers.find((trigger) =>
+        trigger.contractPayload.tokenPair.includes(poolToSell.tokenPair),
+      )
+        ? bot.slippage
+        : bot.lowerSlippage,
       tradeFeeMul,
       precision: poolToSell.poolPrecision,
     });
     const equalizeOutput = this.getSwapOutput({
       symbol: poolToSell.stableTokenSymbol,
-      amountIn: new BigNumber(_.get(sellOutput, 'amountOut')).toFixed(
+      amountIn: new BigNumber(_.get(sellOutput, 'minAmountOut')).toFixed(
         poolToSell.stableTokenPrecision,
       ),
       pool: stablePool,
-      slippage: bot.slippage,
+      slippage: triggers.find((trigger) =>
+        trigger.contractPayload.tokenPair.includes(stablePool.tokenPair),
+      )
+        ? bot.slippage
+        : bot.lowerSlippage,
       tradeFeeMul,
       precision: stablePool.precision,
     });

@@ -5,7 +5,7 @@ import _ from 'lodash';
 import {
   POOL_FEE,
   PYRAMIDAL_BOTS,
-  TWO_DAYS_IN_SECONDS,
+  ONE_DAY_IN_SECONDS,
 } from '../constants/pyramidal-bot.constants';
 import {
   checkTriggerSuccessSuccessType,
@@ -133,6 +133,7 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
       operations,
       startAmountIn: poolToBuy.balance,
       prevIncomeDifference: bot.startIncomeDifference,
+      triggers,
     });
     if (operations.length) {
       this._approachMostProfitableSwapPoint({
@@ -147,6 +148,7 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
         prevIncomeDifference: operations[0].incomeDifference,
         lowerStartAmountIn: operations[0].startAmountIn,
         upperStartAmountIn: operations[0].startAmountIn,
+        triggers,
       });
 
       console.time('broadcast');
@@ -326,6 +328,7 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
     operations,
     startAmountIn,
     prevIncomeDifference,
+    triggers,
   }: getFirstProfitablePointType): void {
     if (new BigNumber(startAmountIn).isLessThan(bot.lowestAmountOutBound)) {
       return;
@@ -340,6 +343,7 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
         bot,
         poolToSell,
         stablePool,
+        triggers,
       });
     const outputError = !buyOutput || !sellOutput || !equalizeOutput;
     if (outputError) return;
@@ -378,6 +382,7 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
           .dividedBy(2)
           .toFixed(poolToBuy.stableTokenPrecision),
         prevIncomeDifference: incomeDifference,
+        triggers,
       });
     } else if (isAmountOutLess) {
       this._getFirstProfitableSwapPoint({
@@ -392,6 +397,7 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
           .dividedBy(2)
           .toFixed(poolToBuy.stableTokenPrecision),
         prevIncomeDifference,
+        triggers,
       });
     }
   }
@@ -408,6 +414,7 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
     prevIncomeDifference,
     lowerStartAmountIn,
     upperStartAmountIn,
+    triggers,
   }: mostProfitablePointType): void {
     let lowerIncomeDifferenceObject;
     let upperIncomeDifferenceObject;
@@ -430,6 +437,7 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
         bot,
         poolToSell,
         stablePool,
+        triggers,
       });
     }
 
@@ -452,6 +460,7 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
         bot,
         poolToSell,
         stablePool,
+        triggers,
       });
     }
 
@@ -495,6 +504,7 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
           incomeDifferenceObject === upperIncomeDifferenceObject
             ? incomeDifferenceObject.startAmountIn
             : '',
+        triggers,
       });
     }
   }
@@ -507,6 +517,7 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
     bot,
     poolToSell,
     stablePool,
+    triggers,
   }: calculateOutputsType): operationType {
     const { buyOutput, sellOutput, equalizeOutput } =
       this._swapOutputService.calculateOutputs({
@@ -517,6 +528,7 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
         bot,
         poolToSell,
         stablePool,
+        triggers,
       });
 
     return {
@@ -587,7 +599,7 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
       if (count === 1) data = this._getObjectForRedis(poolToSell, timestamp);
       if (count === 2) data = this._getObjectForRedis(stablePool, timestamp);
       await this._botClient.hset(key, data);
-      await this._botClient.expire(key, TWO_DAYS_IN_SECONDS);
+      await this._botClient.expire(key, ONE_DAY_IN_SECONDS);
     }
   }
 

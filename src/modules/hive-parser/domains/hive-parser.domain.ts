@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
   hiveBlockType,
   hiveOperationDataType,
@@ -17,43 +17,48 @@ import { configService } from '../../../common/services/config.service';
 
 @Injectable()
 export class HiveParserDomain implements IHiveParserDomain {
+  private readonly _logger = new Logger(HiveParserDomain.name);
   constructor(
     @Inject(PYRAMIDAL_BOT_PROVIDERS.MAIN)
     private readonly _pyramidalBotDomain: IPyramidalBotDomain,
   ) {}
 
   async parseHiveBlock(block: hiveBlockType): Promise<void> {
-    const { transactions } = block;
+    try {
+      const { transactions } = block;
 
-    const triggers: triggerType[] = [];
-    for (const transaction of transactions) {
-      if (!transaction?.operations && !transaction.operations[0]) continue;
+      const triggers: triggerType[] = [];
+      for (const transaction of transactions) {
+        if (!transaction?.operations && !transaction.operations[0]) continue;
 
-      for (const operation of transaction.operations) {
-        const [operationType, operationData] = operation;
-        const isCustomJson =
-          _.includes(operationType, CUSTOM_JSON) &&
-          operationData.hasOwnProperty(OPERATION_DATA.id);
-        if (!isCustomJson) continue;
+        for (const operation of transaction.operations) {
+          const [operationType, operationData] = operation;
+          const isCustomJson =
+            _.includes(operationType, CUSTOM_JSON) &&
+            operationData.hasOwnProperty(OPERATION_DATA.id);
+          if (!isCustomJson) continue;
 
-        const operationDataId = _.get(operationData, OPERATION_DATA.id);
-        const isHiveEngineOperation =
-          operationDataId &&
-          _.includes(operationDataId, OPERATION_DATA.hive_engine);
-        if (!isHiveEngineOperation) continue;
+          const operationDataId = _.get(operationData, OPERATION_DATA.id);
+          const isHiveEngineOperation =
+            operationDataId &&
+            _.includes(operationDataId, OPERATION_DATA.hive_engine);
+          if (!isHiveEngineOperation) continue;
 
-        this._parseJson(
-          operationData as unknown as hiveOperationDataType,
-          triggers,
-        );
+          this._parseJson(
+            operationData as unknown as hiveOperationDataType,
+            triggers,
+          );
+        }
       }
-    }
-    if (!triggers.length) return;
+      if (!triggers.length) return;
 
-    await this._pyramidalBotDomain.startPyramidalBot(
-      triggers,
-      transactions[0].block_num,
-    );
+      await this._pyramidalBotDomain.startPyramidalBot(
+        triggers,
+        transactions[0].block_num,
+      );
+    } catch (error) {
+      this._logger.error(error.message);
+    }
   }
 
   /** --------------------------PRIVATE METHODS----------------------------------------*/
