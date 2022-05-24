@@ -8,6 +8,7 @@ import {
   ONE_DAY_IN_SECONDS,
 } from '../constants/pyramidal-bot.constants';
 import {
+  checkTriggerSuccessSuccessType,
   getFirstProfitablePointType,
   getPoolToSwapType,
   handleSwapsType,
@@ -17,6 +18,7 @@ import {
   operationType,
   poolToSwapType,
   pyramidalBotType,
+  recalculateQuantitiesType,
   updateSwapDataType,
 } from '../types/pyramidal-bot.types';
 import { REDIS_PROVIDERS } from '../../../common/constants/providers';
@@ -90,6 +92,12 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
     }
 
     const tradeFeeMul = _.get(params, '[0].tradeFeeMul', POOL_FEE);
+    this._recalculateQuantities({
+      triggers,
+      pools: pools as unknown as marketPoolType[],
+      tradeFeeMul,
+      slippage: bot.slippage,
+    });
     const poolsWithToken = _.filter(
       pools,
       (pool) => !_.includes(bot.stablePair, pool.tokenPair),
@@ -566,5 +574,69 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
       tokenPair: pool.tokenPair,
       timestamp,
     };
+  }
+
+  private _recalculateQuantities({
+    triggers,
+    pools,
+    tradeFeeMul,
+    slippage,
+  }: recalculateQuantitiesType): void {
+    for (const trigger of triggers) {
+      const pool = _.find(pools, (pool) =>
+        _.includes(pool.tokenPair, trigger.contractPayload.tokenPair),
+      );
+      if (!pool) continue;
+
+      const isTriggerSuccess = this._checkTriggerSuccess({
+        trigger,
+        pool,
+        tradeFeeMul,
+        slippage,
+      });
+      if (!isTriggerSuccess) continue;
+
+      const [base] = pool.tokenPair.split(':');
+      if (base === trigger.contractPayload.tokenPair) {
+        pool.baseQuantity = new BigNumber(pool.baseQuantity)
+          .plus(trigger.contractPayload.tokenAmount)
+          .toFixed(Number(pool.precision));
+        pool.quoteQuantity = new BigNumber(pool.quoteQuantity)
+          .minus(trigger.contractPayload.minAmountOut)
+          .toFixed(Number(pool.precision));
+      } else {
+        pool.baseQuantity = new BigNumber(pool.baseQuantity)
+          .minus(trigger.contractPayload.minAmountOut)
+          .toFixed(Number(pool.precision));
+        pool.quoteQuantity = new BigNumber(pool.quoteQuantity)
+          .plus(trigger.contractPayload.tokenAmount)
+          .toFixed(Number(pool.precision));
+      }
+    }
+  }
+
+  private _checkTriggerSuccess({
+    trigger,
+    pool,
+    tradeFeeMul,
+    slippage,
+  }: checkTriggerSuccessSuccessType): boolean {
+    const output = this._swapOutputService.getSwapOutput({
+      symbol: trigger.contractPayload.tokenSymbol,
+      amountIn: trigger.contractPayload.tokenAmount,
+      pool,
+      slippage,
+      tradeFeeMul,
+      precision: pool.precision,
+    });
+    if (
+      new BigNumber(output.amountOut).isLessThan(
+        trigger.contractPayload.minAmountOut,
+      )
+    ) {
+      return false;
+    }
+
+    return true;
   }
 }
