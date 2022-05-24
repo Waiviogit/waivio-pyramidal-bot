@@ -114,16 +114,3 @@ export type objectForRedisType = {
   tokenPair: string;
   timestamp: number;
 };
-export type recalculateQuantitiesType = {
-  triggers: triggerType[];
-  pools: marketPoolType[];
-  tradeFeeMul: string;
-  slippage: number;
-};
-
-export type checkTriggerSuccessSuccessType = {
-  trigger: triggerType;
-  pool: marketPoolType;
-  tradeFeeMul: string;
-  slippage: number;
-};
