@@ -10,7 +10,7 @@ const BEE_HBD_HIVE = Object.freeze({
   tokenPrecision: 8,
   approachCoefficient: 0.99,
   slippage: 0.0025,
-  lowerSlippage: 0.0005,
+  lowerSlippage: 0.0007,
 });
 
 const CENT_HBD_HIVE = Object.freeze({
