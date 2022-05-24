@@ -43,7 +43,7 @@ const BUSD_HBD_HIVE = Object.freeze({
   startIncomeDifference: 0,
   tokenPrecision: 8,
   approachCoefficient: 0.99,
-  slippage: 0.0009,
+  slippage: 0.001,
   lowerSlippage: 0.0003,
 });
 
