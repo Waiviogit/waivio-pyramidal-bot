@@ -2,7 +2,7 @@ export const HIVE_RPC_NODES = [
   'https://api.openhive.network', // 30 - 70 = 50ms
   'https://hive-api.arcange.eu', // 40 - 100 = 70ms
   'https://hived.emre.sh', // Finland
-  'https://api.pharesim.me', // Germany
+ // 'https://api.pharesim.me', // Germany
   'https://api.deathwing.me', //Germany
   // following nodes are better for production
   // 'https://blocks.waivio.com',

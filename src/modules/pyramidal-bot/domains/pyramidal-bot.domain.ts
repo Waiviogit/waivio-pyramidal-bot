@@ -72,10 +72,8 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
     triggers,
     blockNumber,
   }: handleSwapsType): Promise<void> {
-    console.time('hive engine requests');
     const [pools, params, tokens, balances] =
       await this._makeHiveEngineRequests(bot);
-    console.timeEnd('hive engine requests');
     const isRequestError =
       !pools ||
       !params ||
@@ -92,12 +90,12 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
     }
 
     const tradeFeeMul = _.get(params, '[0].tradeFeeMul', POOL_FEE);
-    this._recalculateQuantities({
-      triggers,
-      pools: pools as unknown as marketPoolType[],
-      tradeFeeMul,
-      slippage: bot.slippage,
-    });
+    // this._recalculateQuantities({
+    //   triggers,
+    //   pools: pools as unknown as marketPoolType[],
+    //   tradeFeeMul,
+    //   slippage: bot.slippage,
+    // });
     const poolsWithToken = _.filter(
       pools,
       (pool) => !_.includes(bot.stablePair, pool.tokenPair),
@@ -151,12 +149,10 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
         triggers,
       });
 
-      console.time('broadcast');
       const result = await this._blockchainApiServiceApi.broadcastToChain(
         bot,
         this._getJsonsToBroadcast(operations[operations.length - 1]),
       );
-      console.timeEnd('broadcast');
       if (!result) return;
 
       await this._updateDataInRedis({
