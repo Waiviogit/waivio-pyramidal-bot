@@ -52,6 +52,14 @@ export class HiveParserDomain implements IHiveParserDomain {
       }
       if (!triggers.length) return;
 
+      const ourTransactions = _.filter(
+        triggers,
+        (trigger) =>
+          trigger.required_auths ===
+          configService.getCustomKey('TRI_BOT_ACCOUNT'),
+      );
+      if (ourTransactions.length === triggers.length) return;
+
       await this._pyramidalBotDomain.startPyramidalBot(
         triggers,
         transactions[0].block_num,
@@ -67,14 +75,12 @@ export class HiveParserDomain implements IHiveParserDomain {
     operation: hiveOperationDataType,
     triggers: triggerType[],
   ): void {
-    const isOurTransaction = _.includes(
-      _.get(operation, 'required_auths'),
-      configService.getCustomKey('TRI_BOT_ACCOUNT'),
-    );
-    if (isOurTransaction) return;
-
     const parsedJson = JSON.parse(operation.json);
     if (!parsedJson || !parsedJson.length) return;
+
+    for (const json of parsedJson) {
+      [json.required_auths] = operation.required_auths;
+    }
 
     const swaps = _.filter(
       parsedJson,

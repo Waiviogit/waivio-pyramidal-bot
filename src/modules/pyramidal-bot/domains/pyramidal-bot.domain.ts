@@ -49,6 +49,7 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
     triggers: triggerType[],
     blockNumber: number,
   ): Promise<void> {
+    console.log('triggers', triggers);
     const pyramidalBots = _.filter(PYRAMIDAL_BOTS, (bot) =>
       _.some(triggers, (trigger) =>
         _.includes(bot.tokenPairs, trigger.contractPayload.tokenPair),
@@ -90,12 +91,12 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
     }
 
     const tradeFeeMul = _.get(params, '[0].tradeFeeMul', POOL_FEE);
-    // this._recalculateQuantities({
-    //   triggers,
-    //   pools: pools as unknown as marketPoolType[],
-    //   tradeFeeMul,
-    //   slippage: bot.slippage,
-    // });
+    this._recalculateQuantities({
+      triggers,
+      pools: pools as unknown as marketPoolType[],
+      tradeFeeMul,
+      slippage: bot.slippage,
+    });
     const poolsWithToken = _.filter(
       pools,
       (pool) => !_.includes(bot.stablePair, pool.tokenPair),

@@ -39,4 +39,5 @@ export type triggerType = {
     tradeType: string;
     minAmountOut: string;
   };
+  required_auths: string;
 };
