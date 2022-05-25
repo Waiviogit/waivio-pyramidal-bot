@@ -585,7 +585,7 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
       );
       if (!pool) continue;
 
-      const isTriggerSuccess = this._checkTriggerSuccess({
+      const { isTriggerSuccess, amountOut } = this._checkTriggerSuccess({
         trigger,
         pool,
         tradeFeeMul,
@@ -598,13 +598,21 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
         pool.baseQuantity = new BigNumber(pool.baseQuantity)
           .plus(trigger.contractPayload.tokenAmount)
           .toFixed(Number(pool.precision));
-        pool.quoteQuantity = new BigNumber(pool.quoteQuantity)
-          .minus(trigger.contractPayload.minAmountOut)
-          .toFixed(Number(pool.precision));
+        pool.quoteQuantity = trigger.contractPayload.minAmountOut
+          ? new BigNumber(pool.quoteQuantity)
+              .minus(trigger.contractPayload.minAmountOut)
+              .toFixed(Number(pool.precision))
+          : new BigNumber(pool.quoteQuantity)
+              .minus(amountOut)
+              .toFixed(Number(pool.precision));
       } else {
-        pool.baseQuantity = new BigNumber(pool.baseQuantity)
-          .minus(trigger.contractPayload.minAmountOut)
-          .toFixed(Number(pool.precision));
+        pool.baseQuantity = trigger.contractPayload.minAmountOut
+          ? new BigNumber(pool.baseQuantity)
+              .minus(trigger.contractPayload.minAmountOut)
+              .toFixed(Number(pool.precision))
+          : new BigNumber(pool.baseQuantity)
+              .minus(amountOut)
+              .toFixed(Number(pool.precision));
         pool.quoteQuantity = new BigNumber(pool.quoteQuantity)
           .plus(trigger.contractPayload.tokenAmount)
           .toFixed(Number(pool.precision));
@@ -617,7 +625,10 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
     pool,
     tradeFeeMul,
     slippage,
-  }: checkTriggerSuccessSuccessType): boolean {
+  }: checkTriggerSuccessSuccessType): {
+    isTriggerSuccess: boolean;
+    amountOut: string;
+  } {
     const output = this._swapOutputService.getSwapOutput({
       symbol: trigger.contractPayload.tokenSymbol,
       amountIn: trigger.contractPayload.tokenAmount,
@@ -631,9 +642,9 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
         trigger.contractPayload.minAmountOut,
       )
     ) {
-      return false;
+      return { isTriggerSuccess: false, amountOut: output.amountOut };
     }
 
-    return true;
+    return { isTriggerSuccess: true, amountOut: output.amountOut };
   }
 }

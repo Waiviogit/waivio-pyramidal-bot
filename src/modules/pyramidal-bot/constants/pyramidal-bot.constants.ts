@@ -9,8 +9,8 @@ const BEE_HBD_HIVE = Object.freeze({
   startIncomeDifference: 0,
   tokenPrecision: 8,
   approachCoefficient: 0.99,
-  slippage: 0.0005,
-  lowerSlippage: 0.0005,
+  slippage: 0.005,
+  lowerSlippage: 0.0003,
 });
 
 const CENT_HBD_HIVE = Object.freeze({
@@ -21,11 +21,11 @@ const CENT_HBD_HIVE = Object.freeze({
   stablePair: 'SWAP.HIVE:SWAP.HBD',
   tokenSymbol: 'CENT',
   lowestAmountOutBound: 0.1,
-  startIncomeDifference: '0',
+  startIncomeDifference: 0,
   tokenPrecision: 8,
   approachCoefficient: 0.99,
-  slippage: 0.0005,
-  lowerSlippage: 0.0005,
+  slippage: 0.005,
+  lowerSlippage: 0.0003,
 });
 
 const BUSD_HBD_HIVE = Object.freeze({
@@ -43,8 +43,8 @@ const BUSD_HBD_HIVE = Object.freeze({
   startIncomeDifference: 0,
   tokenPrecision: 8,
   approachCoefficient: 0.99,
-  slippage: 0.0005,
-  lowerSlippage: 0.0005,
+  slippage: 0.005,
+  lowerSlippage: 0.0003,
 });
 
 export const PYRAMIDAL_BOTS = [BEE_HBD_HIVE, CENT_HBD_HIVE, BUSD_HBD_HIVE];
