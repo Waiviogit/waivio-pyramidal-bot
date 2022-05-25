@@ -9,7 +9,7 @@ const BEE_HBD_HIVE = Object.freeze({
   startIncomeDifference: 0,
   tokenPrecision: 8,
   approachCoefficient: 0.99,
-  slippage: 0.0025,
+  slippage: 0.003,
   lowerSlippage: 0.0007,
 });
 
@@ -24,7 +24,7 @@ const CENT_HBD_HIVE = Object.freeze({
   startIncomeDifference: '0',
   tokenPrecision: 8,
   approachCoefficient: 0.99,
-  slippage: 0.0006,
+  slippage: 0.0007,
   lowerSlippage: 0.0005,
 });
 
@@ -43,7 +43,7 @@ const BUSD_HBD_HIVE = Object.freeze({
   startIncomeDifference: 0,
   tokenPrecision: 8,
   approachCoefficient: 0.99,
-  slippage: 0.0009,
+  slippage: 0.001,
   lowerSlippage: 0.0003,
 });
 
