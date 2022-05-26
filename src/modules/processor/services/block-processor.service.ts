@@ -44,7 +44,7 @@ export class BlockProcessorService {
       );
       await this._loadNextBlock();
     } else {
-      await setTimeout(async () => this._loadNextBlock(), 1000);
+      await setTimeout(async () => this._loadNextBlock(), 500);
     }
   }
 
