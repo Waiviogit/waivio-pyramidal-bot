@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import BigNumber from 'bignumber.js';
-import _ from 'lodash';
 import {
   calculateOutputsType,
   getAmountOut,
@@ -31,7 +30,7 @@ export class SwapOutputService {
     const buyOutput = this.getSwapOutput({
       symbol: poolToBuy.stableTokenSymbol,
       amountIn: startAmountIn,
-      pool: _.find(poolsWithToken, (pool) =>
+      pool: poolsWithToken.find((pool) =>
         pool.tokenPair.includes(poolToBuy.tokenPair),
       ),
       slippage: triggers.find((trigger) =>
@@ -44,10 +43,10 @@ export class SwapOutputService {
     });
     const sellOutput = this.getSwapOutput({
       symbol: bot.tokenSymbol,
-      amountIn: new BigNumber(_.get(buyOutput, 'minAmountOut')).toFixed(
+      amountIn: new BigNumber(buyOutput.minAmountOut).toFixed(
         bot.tokenPrecision,
       ),
-      pool: _.find(poolsWithToken, (pool) =>
+      pool: poolsWithToken.find((pool) =>
         pool.tokenPair.includes(poolToSell.tokenPair),
       ),
       slippage: triggers.find((trigger) =>
@@ -60,7 +59,7 @@ export class SwapOutputService {
     });
     const equalizeOutput = this.getSwapOutput({
       symbol: poolToSell.stableTokenSymbol,
-      amountIn: new BigNumber(_.get(sellOutput, 'minAmountOut')).toFixed(
+      amountIn: new BigNumber(sellOutput.minAmountOut).toFixed(
         poolToSell.stableTokenPrecision,
       ),
       pool: stablePool,

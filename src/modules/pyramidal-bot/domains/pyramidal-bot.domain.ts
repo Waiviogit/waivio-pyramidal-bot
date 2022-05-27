@@ -6,6 +6,7 @@ import {
   POOL_FEE,
   PYRAMIDAL_BOTS,
   ONE_DAY_IN_SECONDS,
+  PRECISION,
 } from '../constants/pyramidal-bot.constants';
 import {
   checkTriggerSuccessSuccessType,
@@ -27,7 +28,6 @@ import BigNumber from 'bignumber.js';
 import {
   marketPoolType,
   tokenBalanceType,
-  tokenParamsType,
 } from '../../blockchain-api/types/hive-engine.types';
 import { SwapOutputService } from '../services/swap-output.service';
 import { calculateOutputsType, jsonType } from '../types/swap-output.types';
@@ -50,9 +50,9 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
     blockNumber: number,
   ): Promise<void> {
     console.log('triggers', triggers);
-    const pyramidalBots = _.filter(PYRAMIDAL_BOTS, (bot) =>
-      _.some(triggers, (trigger) =>
-        _.includes(bot.tokenPairs, trigger.contractPayload.tokenPair),
+    const pyramidalBots = PYRAMIDAL_BOTS.filter((bot) =>
+      triggers.some((trigger) =>
+        bot.tokenPairs.includes(trigger.contractPayload.tokenPair),
       ),
     );
     if (!pyramidalBots.length) return;
@@ -73,24 +73,16 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
     triggers,
     blockNumber,
   }: handleSwapsType): Promise<void> {
-    const [pools, params, tokens, balances] =
-      await this._makeHiveEngineRequests(bot);
+    const [pools, balances] = await this._makeHiveEngineRequests(bot);
     const isRequestError =
-      !pools ||
-      !params ||
-      !tokens ||
-      !balances ||
-      !pools.length ||
-      !params.length ||
-      !tokens.length ||
-      !balances.length;
+      !pools || !balances || !pools.length || !balances.length;
     if (isRequestError) {
       console.error('-------error in pyramidalBot request');
 
       return;
     }
 
-    const tradeFeeMul = _.get(params, '[0].tradeFeeMul', POOL_FEE);
+    const tradeFeeMul = POOL_FEE;
     this._recalculateQuantities({
       triggers,
       pools: pools as unknown as marketPoolType[],
@@ -99,24 +91,22 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
     });
     const poolsWithToken = _.filter(
       pools,
-      (pool) => !_.includes(bot.stablePair, pool.tokenPair),
+      (pool) => !bot.stablePair.includes(pool.tokenPair),
     );
     const stablePool = _.find(pools, (pool) =>
-      _.includes(bot.stablePair, pool.tokenPair),
+      bot.stablePair.includes(pool.tokenPair),
     );
     const poolToBuy = this._getPoolToSwap({
       pools: poolsWithToken,
       bot,
       buy: true,
       stablePool,
-      tokens: tokens as unknown as tokenParamsType[],
       balances: balances as unknown as tokenBalanceType[],
     });
     const poolToSell = this._getPoolToSwap({
       pools: poolsWithToken,
       bot,
       stablePool,
-      tokens: tokens as unknown as tokenParamsType[],
       balances: balances as unknown as tokenBalanceType[],
     });
 
@@ -181,27 +171,6 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
       }),
       this._blockchainApiServiceApi.makeHiveEngineRequest({
         params: {
-          contract: 'marketpools',
-          table: 'params',
-          query: {},
-        },
-      }),
-      this._blockchainApiServiceApi.makeHiveEngineRequest({
-        params: {
-          contract: 'tokens',
-          table: 'tokens',
-          query: {
-            symbol: {
-              $in: [bot.tokenSymbol, ...bot.stableTokens],
-            },
-          },
-          offset: 0,
-          limit: 1000,
-        },
-        hostUrl: HIVE_ENGINE_NODES[1],
-      }),
-      this._blockchainApiServiceApi.makeHiveEngineRequest({
-        params: {
           contract: 'tokens',
           table: 'balances',
           query: { symbol: { $in: bot.stableTokens }, account: bot.account },
@@ -216,7 +185,6 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
     bot,
     buy = false,
     stablePool,
-    tokens,
     balances,
   }: getPoolToSwapType): poolToSwapType {
     const dataToCompare = [];
@@ -235,10 +203,7 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
                   .toFixed(Number(stablePool.precision)),
             tokenPair: pool.tokenPair,
             stableTokenSymbol: quote,
-            stableTokenPrecision: _.find(
-              tokens,
-              (token) => token.symbol === quote,
-            ).precision,
+            stableTokenPrecision: PRECISION,
             balance: _.find(balances, (balance) => balance.symbol === quote)
               .balance,
             poolPrecision: pool.precision,
@@ -255,10 +220,7 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
                   .toFixed(Number(stablePool.precision)),
             tokenPair: pool.tokenPair,
             stableTokenSymbol: base,
-            stableTokenPrecision: _.find(
-              tokens,
-              (token) => token.symbol === base,
-            ).precision,
+            stableTokenPrecision: PRECISION,
             balance: _.find(balances, (balance) => balance.symbol === base)
               .balance,
             poolPrecision: pool.precision,
@@ -580,8 +542,8 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
     slippage,
   }: recalculateQuantitiesType): void {
     for (const trigger of triggers) {
-      const pool = _.find(pools, (pool) =>
-        _.includes(pool.tokenPair, trigger.contractPayload.tokenPair),
+      const pool = pools.find((pool) =>
+        pool.tokenPair.includes(trigger.contractPayload.tokenPair),
       );
       if (!pool) continue;
 

@@ -5,7 +5,6 @@ import {
   triggerType,
 } from '../types/hive-parser.types';
 import { IHiveParserDomain } from '../interfaces/domains/hive-parser-domain.interface';
-import _ from 'lodash';
 import {
   CUSTOM_JSON,
   OPERATION_DATA,
@@ -14,6 +13,7 @@ import { PYRAMIDAL_BOTS } from '../../pyramidal-bot/constants/pyramidal-bot.cons
 import { PYRAMIDAL_BOT_PROVIDERS } from '../../../common/constants/providers';
 import { IPyramidalBotDomain } from '../../pyramidal-bot/interfaces/domains/pyramidal-bot-domain.interface';
 import { configService } from '../../../common/services/config.service';
+import _ from 'lodash';
 
 @Injectable()
 export class HiveParserDomain implements IHiveParserDomain {
@@ -34,14 +34,13 @@ export class HiveParserDomain implements IHiveParserDomain {
         for (const operation of transaction.operations) {
           const [operationType, operationData] = operation;
           const isCustomJson =
-            _.includes(operationType, CUSTOM_JSON) &&
+            operationType.includes(CUSTOM_JSON) &&
             operationData.hasOwnProperty(OPERATION_DATA.id);
           if (!isCustomJson) continue;
 
-          const operationDataId = _.get(operationData, OPERATION_DATA.id);
           const isHiveEngineOperation =
-            operationDataId &&
-            _.includes(operationDataId, OPERATION_DATA.hive_engine);
+            operationData.id &&
+            operationData.id.includes(OPERATION_DATA.hive_engine);
           if (!isHiveEngineOperation) continue;
 
           this._parseJson(
@@ -52,8 +51,7 @@ export class HiveParserDomain implements IHiveParserDomain {
       }
       if (!triggers.length) return;
 
-      const ourTransactions = _.filter(
-        triggers,
+      const ourTransactions = triggers.filter(
         (trigger) =>
           trigger.required_auths ===
           configService.getCustomKey('TRI_BOT_ACCOUNT'),
@@ -82,11 +80,10 @@ export class HiveParserDomain implements IHiveParserDomain {
       [json.required_auths] = operation.required_auths;
     }
 
-    const swaps = _.filter(
-      parsedJson,
+    const swaps = parsedJson.filter(
       (el) =>
-        _.includes(el.contractName, OPERATION_DATA.contract_name) &&
-        _.includes(el.contractAction, OPERATION_DATA.contract_action) &&
+        el.contractName.includes(OPERATION_DATA.contract_name) &&
+        el.contractAction.includes(OPERATION_DATA.contract_action) &&
         _.some(
           _.flatten(_.map(PYRAMIDAL_BOTS, 'tokenPairs')),
           (pool) => pool === el.contractPayload.tokenPair,

@@ -34,16 +34,6 @@ export type hiveEngineResponsesType = [
     | marketPoolParamsType[]
     | tokenParamsType[]
     | tokenBalanceType[],
-  params:
-    | marketPoolType[]
-    | marketPoolParamsType[]
-    | tokenParamsType[]
-    | tokenBalanceType[],
-  tokens:
-    | marketPoolType[]
-    | marketPoolParamsType[]
-    | tokenParamsType[]
-    | tokenBalanceType[],
   balances:
     | marketPoolType[]
     | marketPoolParamsType[]
@@ -56,7 +46,6 @@ export type getPoolToSwapType = {
   bot: pyramidalBotType;
   buy?: boolean;
   stablePool: marketPoolType;
-  tokens: tokenParamsType[];
   balances: tokenBalanceType[];
 };
 
@@ -90,7 +79,7 @@ export type mostProfitablePointType = {
   upperStartAmountIn: string;
   poolToBuy: poolToSwapType;
   poolsWithToken: marketPoolType[];
-  tradeFeeMul: string;
+  tradeFeeMul: number;
   bot: pyramidalBotType;
   poolToSell: poolToSwapType;
   stablePool: marketPoolType;
@@ -118,13 +107,13 @@ export type objectForRedisType = {
 export type recalculateQuantitiesType = {
   triggers: triggerType[];
   pools: marketPoolType[];
-  tradeFeeMul: string;
+  tradeFeeMul: number;
   slippage: number;
 };
 
 export type checkTriggerSuccessSuccessType = {
   trigger: triggerType;
   pool: marketPoolType;
-  tradeFeeMul: string;
+  tradeFeeMul: number;
   slippage: number;
 };

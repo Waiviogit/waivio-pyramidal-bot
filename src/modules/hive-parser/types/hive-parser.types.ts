@@ -14,7 +14,7 @@ export type hiveTransactionType = {
   ref_block_num: number;
   ref_block_prefix: number;
   expiration: string;
-  operations: [string, object][];
+  operations: [string, hiveOperationDataType][];
   extensions: [];
   signatures: string[];
   transaction_id: string;

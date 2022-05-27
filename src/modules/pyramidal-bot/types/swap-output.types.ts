@@ -7,7 +7,7 @@ export type calculateOutputsType = {
   poolToBuy: poolToSwapType;
   startAmountIn: string;
   poolsWithToken: marketPoolType[];
-  tradeFeeMul: string;
+  tradeFeeMul: number;
   bot: pyramidalBotType;
   poolToSell: poolToSwapType;
   stablePool: marketPoolType;
@@ -19,7 +19,7 @@ export type getSwapOutputType = {
   amountIn: string;
   pool: marketPoolType;
   slippage: number;
-  tradeFeeMul: string;
+  tradeFeeMul: number;
   precision: string;
 };
 
@@ -27,7 +27,7 @@ export type getAmountOut = {
   tokenAmount: string | BigNumber;
   liquidityIn: string;
   liquidityOut: string;
-  tradeFeeMul: string;
+  tradeFeeMul: number;
 };
 
 export type operationForJsonType = {

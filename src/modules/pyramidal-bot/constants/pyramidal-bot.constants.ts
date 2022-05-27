@@ -52,3 +52,5 @@ export const PYRAMIDAL_BOTS = [BEE_HBD_HIVE, CENT_HBD_HIVE, BUSD_HBD_HIVE];
 export const ONE_DAY_IN_SECONDS = 86400;
 
 export const POOL_FEE = 0.9975;
+
+export const PRECISION = 8;
