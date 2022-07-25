@@ -4,6 +4,7 @@ import { HiveParserModule } from './modules/hive-parser/hive-parser.module';
 import { BlockProcessorModule } from './modules/processor/block-processor.module';
 import { BlockchainApiModule } from './modules/blockchain-api/blockchain-api.module';
 import { PyramidalBotModule } from './modules/pyramidal-bot/pyramidal-bot.module';
+import { SocketClientModule } from './modules/socket/socket.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { PyramidalBotModule } from './modules/pyramidal-bot/pyramidal-bot.module
     BlockProcessorModule,
     BlockchainApiModule,
     PyramidalBotModule,
+    SocketClientModule,
   ],
 })
 export class AppModule {}
