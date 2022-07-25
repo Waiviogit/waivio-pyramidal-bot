@@ -8,6 +8,7 @@ import {
 } from '../../../common/constants/providers';
 import { IBlockProcessor } from '../../redis/interfaces/redis-client.interfaces';
 import { BlockchainApiService } from '../../blockchain-api/services/blockchain-api.service';
+import { SocketClient } from '../../socket/socket.client';
 
 @Injectable()
 export class BlockProcessorService {
@@ -22,6 +23,7 @@ export class BlockProcessorService {
     private readonly _hiveApiDomain: BlockchainApiService,
     @Inject(HIVE_PARSER_PROVIDERS.MAIN)
     private readonly _hiveParserDomain: IHiveParserDomain,
+    private readonly _socketClient: SocketClient,
   ) {}
 
   async start(): Promise<void> {
@@ -38,24 +40,31 @@ export class BlockProcessorService {
 
     this._logger.log(`${this._currentBlock}: ${end[1] / 1000000}ms`);
     if (processed) {
-      await this._processorClient.set(
-        this._redisBlockKey,
-        `${this._currentBlock + 1}`,
-      );
-      await this._loadNextBlock();
-    } else {
-      await setTimeout(async () => this._loadNextBlock(), 500);
-    }
+        await this._processorClient.set(
+            this._redisBlockKey,
+            `${this._currentBlock + 1}`,
+        );
+        await this._loadNextBlock();
+        } else {
+          await setTimeout(async () => this._loadNextBlock(), 500);
+        }
   }
 
   private async _processBlock(blockNumber: number): Promise<boolean> {
-    const block = await this._hiveApiDomain.getBlock(blockNumber);
+ //  const block = await this._hiveApiDomain.getBlock(blockNumber);
+   const block = await this._socketClient.sendMessage(
+      JSON.stringify({
+        jsonrpc: '2.0',
+        method: 'condenser_api.get_block',
+        params: [blockNumber],
+        id: 1,
+    }))
     if (block && (!block.transactions || !block.transactions[0])) {
       this._logger.log(`EMPTY BLOCK: ${blockNumber}`);
 
       return true;
     }
-    if (block && block.transactions && block.transactions[0]) {
+    if (block && block.transactions && block.transactions[0] && block.transactions[0].block_num === blockNumber) {
       await this._hiveParserDomain.parseHiveBlock(block);
 
       return true;

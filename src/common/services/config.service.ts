@@ -28,6 +28,10 @@ class ConfigService implements IConfigService {
     return `redis://${host}:${port}/${db}`;
   }
 
+  getWSSUrl(): string {
+    return this._getValue('WSS_URL');
+  }
+
   /** --------------------------PRIVATE METHODS----------------------------------------*/
 
   private _getValue(key: string, throwOnMissing = true): string {
