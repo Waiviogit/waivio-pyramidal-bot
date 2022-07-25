@@ -62,7 +62,7 @@ export class BlockProcessorService {
     if (block && (!block.transactions || !block.transactions[0])) {
       this._logger.log(`EMPTY BLOCK: ${blockNumber}`);
 
-      return true;
+      return false;
     }
     if (block && block.transactions && block.transactions[0] && block.transactions[0].block_num === blockNumber) {
       await this._hiveParserDomain.parseHiveBlock(block);
