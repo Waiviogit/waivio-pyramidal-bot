@@ -83,12 +83,12 @@ export class PyramidalBotDomain implements IPyramidalBotDomain {
     }
 
     const tradeFeeMul = POOL_FEE;
-    // this._recalculateQuantities({
-    //   triggers,
-    //   pools: pools as unknown as marketPoolType[],
-    //   tradeFeeMul,
-    //   slippage: bot.slippage,
-    // });
+    this._recalculateQuantities({
+      triggers,
+      pools: pools as unknown as marketPoolType[],
+      tradeFeeMul,
+      slippage: bot.slippage,
+    });
     const poolsWithToken = _.filter(
       pools,
       (pool) => !bot.stablePair.includes(pool.tokenPair),
