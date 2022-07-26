@@ -16,10 +16,6 @@ export class SocketClient {
         this._ws.on('error', () => {
       this._ws.close();
         });
-      this._ws.on('message', (message) => {
-          const response = JSON.parse(message);
-          this._block = response.result;
-      })
     }
 
      async sendMessage(message: string): Promise<hiveBlockType> {
@@ -28,15 +24,18 @@ export class SocketClient {
             this._ws.on('error', () => {
                 this._ws.close();
             });
-           this._ws.on('message', (message) => {
-                 const response = JSON.parse(message);
-                this._block = response.result;
-            })
 
             return;
         }
 
-         this._ws.send(message);
+        await this._ws.send(message);
+
+        await this._ws.on('message', (message) => {
+             const response = JSON.parse(message);
+                 this._block = response.result;
+
+                 return;
+         });
 
         return this._block;
     }
