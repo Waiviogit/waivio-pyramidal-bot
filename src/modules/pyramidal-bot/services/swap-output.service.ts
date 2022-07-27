@@ -63,11 +63,7 @@ export class SwapOutputService {
         poolToSell.stableTokenPrecision,
       ),
       pool: stablePool,
-      slippage: triggers.find((trigger) =>
-        trigger.contractPayload.tokenPair.includes(stablePool.tokenPair),
-      )
-        ? bot.slippage
-        : bot.lowerSlippage,
+      slippage: 0.49,
       tradeFeeMul,
       precision: stablePool.precision,
     });
