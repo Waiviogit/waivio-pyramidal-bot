@@ -9,6 +9,6 @@ async function bootstrap() {
   const blockProcessor = app.get(BlockProcessorService);
 
   await app.listen(configService.getPort());
-  await blockProcessor.start();
+  blockProcessor.start();
 }
 bootstrap();
