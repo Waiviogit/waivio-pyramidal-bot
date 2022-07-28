@@ -48,9 +48,11 @@ export class SocketClient {
   }
 
   async setBlock(): Promise<void> {
-    await this._redisClient.set(
-      REDIS_KEY.BLOCK_TO_PARSE,
-      JSON.stringify(this._block),
-    );
+    if (this._block) {
+      await this._redisClient.set(
+          REDIS_KEY.BLOCK_TO_PARSE,
+          JSON.stringify(this._block),
+      );
+    }
   }
 }
