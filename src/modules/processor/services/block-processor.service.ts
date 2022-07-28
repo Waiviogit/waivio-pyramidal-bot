@@ -26,51 +26,75 @@ export class BlockProcessorService {
     private readonly _socketClient: SocketClient,
   ) {}
 
-  async start(): Promise<void> {
-    await this._loadNextBlock();
+   async start(): Promise<void> {
+    await setTimeout(async () => this._loadNextBlock(), 1000);
   }
 
   /** --------------------------PRIVATE METHODS----------------------------------------*/
 
   private async _loadNextBlock(): Promise<void> {
     this._currentBlock = await this._getBlockNumber();
-    const start = process.hrtime();
-    const processed = await this._processBlock(this._currentBlock);
-    const end = process.hrtime(start);
-
-    this._logger.log(`${this._currentBlock}: ${end[1] / 1000000}ms`);
-    if (processed) {
-        await this._processorClient.set(
-            this._redisBlockKey,
-            `${this._currentBlock + 1}`,
-        );
-        await this._loadNextBlock();
-        } else {
-          await setTimeout(async () => this._loadNextBlock(), 500);
-        }
+      this._socketClient.sendMessage(
+      JSON.stringify({
+          jsonrpc: '2.0',
+          method: 'condenser_api.get_block',
+          params: [this._currentBlock],
+          id: 1,
+          }))
+      await this._processBlock(this._currentBlock);
   }
 
-  private async _processBlock(blockNumber: number): Promise<boolean> {
- //  const block = await this._hiveApiDomain.getBlock(blockNumber);
-   const block = await this._socketClient.sendMessage(
-      JSON.stringify({
-        jsonrpc: '2.0',
-        method: 'condenser_api.get_block',
-        params: [blockNumber],
-        id: 1,
-    }))
+  private async _processBlock(blockNumber: number): Promise<void> {
+      const cachedInfo = await this._processorClient.get(REDIS_KEY.BLOCK_TO_PARSE);
+      if (!cachedInfo) {
+          await this._loadNextBlock();
+
+          return;
+      }
+
+      const block = JSON.parse(cachedInfo, null);
+      if (!block) {
+      await this._loadNextBlock();
+
+          return;
+      }
+
+      if (block.transactions[0].block_num !== blockNumber) {
+      await this._socketClient.setBlock();
+      await this._processBlock(blockNumber);
+
+          return;
+      }
+
     if (block && (!block.transactions || !block.transactions[0])) {
       this._logger.log(`EMPTY BLOCK: ${blockNumber}`);
+        await this._processorClient.set(
+        this._redisBlockKey,
+            `${this._currentBlock + 1}`,
+      );
+        await this._loadNextBlock();
 
-      return true;
+        return;
     }
+
+
     if (block && block.transactions && block.transactions[0] && block.transactions[0].block_num === blockNumber) {
+      const start = process.hrtime();
       await this._hiveParserDomain.parseHiveBlock(block);
+            await this._processorClient.set(
+        this._redisBlockKey,
+        `${this._currentBlock + 1}`,
+            );
+      const end = process.hrtime(start);
+        this._logger.log(`${this._currentBlock}: ${end[1] / 1000000}ms`);
+      await setTimeout(async () => this._loadNextBlock(), 1000);
 
-      return true;
+        return;
     }
 
-    return false;
+        await this._loadNextBlock();
+
+    return;
   }
 
   private async _getBlockNumber(): Promise<number> {
