@@ -72,7 +72,7 @@ export class BlockProcessorService {
         this._redisBlockKey,
             `${this._currentBlock + 1}`,
       );
-        await this._loadNextBlock();
+        await setTimeout(async () => this._loadNextBlock(), 1000);
 
         return;
     }
