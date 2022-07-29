@@ -33,14 +33,19 @@ export class BlockProcessorService {
   /** --------------------------PRIVATE METHODS----------------------------------------*/
 
   private async _loadNextBlock(): Promise<void> {
-    this._currentBlock = await this._getBlockNumber();
-      this._socketClient.sendMessage(
-      JSON.stringify({
-          jsonrpc: '2.0',
-          method: 'condenser_api.get_block',
-          params: [this._currentBlock],
-          id: 1,
-          }))
+      await this._socketClient.setBlock();
+      this._currentBlock = await this._getBlockNumber();
+      const cachedInfo = await this._processorClient.get(REDIS_KEY.BLOCK_TO_PARSE);
+      const block = JSON.parse(cachedInfo, null);
+      if (!cachedInfo || !block || block.transactions[0].block_num !== this._currentBlock) {
+          this._socketClient.sendMessage(
+              JSON.stringify({
+                  jsonrpc: '2.0',
+                  method: 'condenser_api.get_block',
+                  params: [this._currentBlock],
+                  id: 1,
+              }))
+      }
       const processed = await this._processBlock(this._currentBlock)
       if (processed) await setTimeout(async () => this._loadNextBlock(), 1000);
       else await this._loadNextBlock();
@@ -53,7 +58,6 @@ export class BlockProcessorService {
       const block = JSON.parse(cachedInfo, null);
       if (!block) return false;
 
-
       if (block.transactions[0].block_num !== blockNumber) return false;
 
       if (block && (!block.transactions || !block.transactions[0])) {
@@ -65,7 +69,6 @@ export class BlockProcessorService {
 
         return true;
     }
-
 
     if (block && block.transactions && block.transactions[0] && block.transactions[0].block_num === blockNumber) {
       const start = process.hrtime();
