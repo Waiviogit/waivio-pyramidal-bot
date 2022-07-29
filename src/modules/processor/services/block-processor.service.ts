@@ -45,6 +45,7 @@ export class BlockProcessorService {
   }
 
   private async _processBlock(blockNumber: number): Promise<void> {
+      await this._socketClient.setBlock();
       const cachedInfo = await this._processorClient.get(REDIS_KEY.BLOCK_TO_PARSE);
       if (!cachedInfo) {
           await this._loadNextBlock();
@@ -60,7 +61,6 @@ export class BlockProcessorService {
       }
 
       if (block.transactions[0].block_num !== blockNumber) {
-      await this._socketClient.setBlock();
       await this._processBlock(blockNumber);
 
           return;
@@ -92,7 +92,7 @@ export class BlockProcessorService {
         return;
     }
 
-        await this._loadNextBlock();
+    await this._loadNextBlock();
 
     return;
   }
