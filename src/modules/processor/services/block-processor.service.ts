@@ -28,8 +28,6 @@ export class BlockProcessorService {
 
    async start(): Promise<void> {
     await setTimeout(async () => this._loadNextBlock(), 1000);
-
-    return;
   }
 
   /** --------------------------PRIVATE METHODS----------------------------------------*/
@@ -43,43 +41,29 @@ export class BlockProcessorService {
           params: [this._currentBlock],
           id: 1,
           }))
-      await this._processBlock(this._currentBlock)
-
-      return;
+      const processed = await this._processBlock(this._currentBlock)
+      if (processed) await setTimeout(async () => this._loadNextBlock(), 1000);
+      else await this._loadNextBlock();
   }
 
-  private async _processBlock(blockNumber: number): Promise<void> {
+  private async _processBlock(blockNumber: number): Promise<boolean> {
       const cachedInfo = await this._processorClient.get(REDIS_KEY.BLOCK_TO_PARSE);
-      if (!cachedInfo) {
-          await this._loadNextBlock();
-
-          return;
-      }
+      if (!cachedInfo) return false;
 
       const block = JSON.parse(cachedInfo, null);
-      if (!block) {
-      await this._loadNextBlock();
+      if (!block) return false;
 
-          return;
-      }
 
-      if (block.transactions[0].block_num !== blockNumber) {
-         // await this._socketClient.setBlock();
-         // await this._processBlock(blockNumber);
-          await this._loadNextBlock();
+      if (block.transactions[0].block_num !== blockNumber) return false;
 
-          return;
-      }
-
-    if (block && (!block.transactions || !block.transactions[0])) {
+      if (block && (!block.transactions || !block.transactions[0])) {
       this._logger.log(`EMPTY BLOCK: ${blockNumber}`);
         await this._processorClient.set(
         this._redisBlockKey,
             `${this._currentBlock + 1}`,
       );
-        await setTimeout(async () => this._loadNextBlock(), 1000);
 
-        return;
+        return true;
     }
 
 
@@ -92,14 +76,11 @@ export class BlockProcessorService {
             );
       const end = process.hrtime(start);
         this._logger.log(`${this._currentBlock}: ${end[1] / 1000000}ms`);
-      await setTimeout(async () => this._loadNextBlock(), 1000);
 
-        return;
+        return true;
     }
 
-    await this._loadNextBlock();
-
-    return;
+    return false;
   }
 
   private async _getBlockNumber(): Promise<number> {
