@@ -9,6 +9,8 @@ import {
 import { IBlockProcessor } from '../../redis/interfaces/redis-client.interfaces';
 import { BlockchainApiService } from '../../blockchain-api/services/blockchain-api.service';
 import { SocketClient } from '../../socket/socket.client';
+import { OnEvent } from '@nestjs/event-emitter';
+import { hiveBlockType } from '../../hive-parser/types/hive-parser.types';
 
 @Injectable()
 export class BlockProcessorService {
@@ -26,64 +28,53 @@ export class BlockProcessorService {
     private readonly _socketClient: SocketClient,
   ) {}
 
-   async start(): Promise<void> {
-    await setTimeout(async () => this._loadNextBlock(), 1000);
+  async start(): Promise<void> {
+    await this._loadNextBlock();
   }
 
   /** --------------------------PRIVATE METHODS----------------------------------------*/
 
+  @OnEvent('load')
   private async _loadNextBlock(): Promise<void> {
-      await this._socketClient.setBlock();
-      this._currentBlock = await this._getBlockNumber();
-      const cachedInfo = await this._processorClient.get(REDIS_KEY.BLOCK_TO_PARSE);
-      const block = JSON.parse(cachedInfo, null);
-      if (!cachedInfo || !block || block.transactions[0].block_num !== this._currentBlock) {
-          this._socketClient.sendMessage(
-              JSON.stringify({
-                  jsonrpc: '2.0',
-                  method: 'condenser_api.get_block',
-                  params: [this._currentBlock],
-                  id: 1,
-              }))
-      }
-      const processed = await this._processBlock(this._currentBlock)
-      if (processed) await setTimeout(async () => this._loadNextBlock(), 1000);
-      else await this._loadNextBlock();
+    this._currentBlock = await this._getBlockNumber();
+    setTimeout(
+      () =>
+        this._socketClient.sendMessage(
+          JSON.stringify({
+            jsonrpc: '2.0',
+            method: 'condenser_api.get_block',
+            params: [this._currentBlock],
+            id: 1,
+          }),
+        ),
+      1000,
+    );
   }
 
-  private async _processBlock(blockNumber: number): Promise<boolean> {
-      const cachedInfo = await this._processorClient.get(REDIS_KEY.BLOCK_TO_PARSE);
-      if (!cachedInfo) return false;
-
-      const block = JSON.parse(cachedInfo, null);
-      if (!block) return false;
-
-      if (block.transactions[0].block_num !== blockNumber) return false;
-
-      if (block && (!block.transactions || !block.transactions[0])) {
-      this._logger.log(`EMPTY BLOCK: ${blockNumber}`);
-        await this._processorClient.set(
-        this._redisBlockKey,
-            `${this._currentBlock + 1}`,
-      );
-
-        return true;
-    }
-
-    if (block && block.transactions && block.transactions[0] && block.transactions[0].block_num === blockNumber) {
-      const start = process.hrtime();
-      await this._hiveParserDomain.parseHiveBlock(block);
-            await this._processorClient.set(
+  @OnEvent('process')
+  private async _processBlock(block: hiveBlockType): Promise<void> {
+    if (block && (!block.transactions || !block.transactions[0])) {
+      this._logger.log(`EMPTY BLOCK: ${block.transactions[0].block_num}`);
+      await this._processorClient.set(
         this._redisBlockKey,
         `${this._currentBlock + 1}`,
-            );
-      const end = process.hrtime(start);
-        this._logger.log(`${this._currentBlock}: ${end[1] / 1000000}ms`);
-
-        return true;
+      );
     }
 
-    return false;
+    if (block && block.transactions && block.transactions[0]) {
+      const start = process.hrtime();
+      await this._hiveParserDomain.parseHiveBlock(block);
+      await this._processorClient.set(
+        this._redisBlockKey,
+        `${this._currentBlock + 1}`,
+      );
+      const end = process.hrtime(start);
+      this._logger.log(
+        `${block.transactions[0].block_num}: ${end[1] / 1000000}ms`,
+      );
+    }
+
+    await this._loadNextBlock();
   }
 
   private async _getBlockNumber(): Promise<number> {

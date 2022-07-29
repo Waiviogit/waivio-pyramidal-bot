@@ -5,6 +5,7 @@ import { hiveBlockType } from '../hive-parser/types/hive-parser.types';
 import { REDIS_PROVIDERS } from '../../common/constants/providers';
 import { IBlockProcessor } from '../redis/interfaces/redis-client.interfaces';
 import { REDIS_KEY } from '../redis/constants/redis.constants';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class SocketClient {
@@ -14,6 +15,7 @@ export class SocketClient {
   constructor(
     @Inject(REDIS_PROVIDERS.MAIN)
     private readonly _redisClient: IBlockProcessor,
+    private readonly _eventEmitter: EventEmitter2
   ) {
     this._ws.on('open', () => {
       console.info('socket connection open');
@@ -24,27 +26,14 @@ export class SocketClient {
     });
 
     this._ws.on('message', (message) => {
-      const response = JSON.parse(message);
-      this._block = response.result;
+      const { result, error } = JSON.parse(message);
+      if (result) this._eventEmitter.emit('process', result)
+      else this._eventEmitter.emit('load');
     });
   }
 
   async sendMessage(message: string): Promise<void> {
-    if (this._ws.readyState !== 1) {
-      this._ws = new WebSocket(this._url);
-      this._ws.on('error', () => {
-        this._ws.close();
-      });
-      this._ws.on('message', (message) => {
-        const response = JSON.parse(message);
-        this._block = response.result;
-      });
-
-      return;
-    }
-
     this._ws.send(message);
-    await this.setBlock();
   }
 
   async setBlock(): Promise<void> {
@@ -54,5 +43,9 @@ export class SocketClient {
           JSON.stringify(this._block),
       );
     }
+  }
+
+  async getBlock(): Promise<hiveBlockType> {
+    return this._block;
   }
 }
