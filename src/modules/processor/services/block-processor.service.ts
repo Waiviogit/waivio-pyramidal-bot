@@ -54,7 +54,7 @@ export class BlockProcessorService {
   @OnEvent('process')
   private async _processBlock(block: hiveBlockType): Promise<void> {
     if (block && (!block.transactions || !block.transactions[0])) {
-      this._logger.log(`EMPTY BLOCK: ${block.transactions[0].block_num}`);
+      this._logger.log(`EMPTY BLOCK: ${this._currentBlock}`);
       await this._processorClient.set(
         this._redisBlockKey,
         `${this._currentBlock + 1}`,
