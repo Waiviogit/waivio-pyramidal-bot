@@ -5,6 +5,7 @@ import { BlockProcessorModule } from './modules/processor/block-processor.module
 import { BlockchainApiModule } from './modules/blockchain-api/blockchain-api.module';
 import { PyramidalBotModule } from './modules/pyramidal-bot/pyramidal-bot.module';
 import { SocketClientModule } from './modules/socket/socket.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { SocketClientModule } from './modules/socket/socket.module';
     BlockchainApiModule,
     PyramidalBotModule,
     SocketClientModule,
+    EventEmitterModule.forRoot(),
   ],
 })
 export class AppModule {}
