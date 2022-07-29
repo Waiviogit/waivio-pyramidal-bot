@@ -28,6 +28,8 @@ export class BlockProcessorService {
 
    async start(): Promise<void> {
     await setTimeout(async () => this._loadNextBlock(), 1000);
+
+    return;
   }
 
   /** --------------------------PRIVATE METHODS----------------------------------------*/
@@ -41,7 +43,9 @@ export class BlockProcessorService {
           params: [this._currentBlock],
           id: 1,
           }))
-      await this._processBlock(this._currentBlock);
+      await this._processBlock(this._currentBlock)
+
+      return;
   }
 
   private async _processBlock(blockNumber: number): Promise<void> {
