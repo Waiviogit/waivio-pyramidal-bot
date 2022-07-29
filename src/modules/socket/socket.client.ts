@@ -44,7 +44,6 @@ export class SocketClient {
     }
 
     this._ws.send(message);
-    this.setBlock();
   }
 
   async setBlock(): Promise<void> {
