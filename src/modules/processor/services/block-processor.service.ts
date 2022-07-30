@@ -29,7 +29,7 @@ export class BlockProcessorService {
   ) {}
 
   async start(): Promise<void> {
-    await this._loadNextBlock();
+    await setTimeout(() => this._loadNextBlock(), 1000);
   }
 
   /** --------------------------PRIVATE METHODS----------------------------------------*/
@@ -47,7 +47,7 @@ export class BlockProcessorService {
             id: 1,
           }),
         ),
-      1000,
+      500,
     );
   }
 
